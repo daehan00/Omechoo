@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 
 
@@ -13,6 +13,9 @@ class RecommendationContext:
     included_categories: list[str] | None = None
     excluded_categories: list[str] | None = None
     user_id: str | None = None  # 향후 개인화용
+    
+    # 메뉴 속성 필터링 (예: {"is_spicy": True, "is_vegan": True})
+    attributes: dict[str, bool] = field(default_factory=dict)
     
     # 향후 확장 (Phase 2, 3)
     weather: str | None = None

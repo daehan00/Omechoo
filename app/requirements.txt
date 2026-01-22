@@ -1,3 +1,5 @@
 slowapi
 fastapi
 sqlalchemy
+pydantic
+pydantic_settings

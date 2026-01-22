@@ -22,3 +22,12 @@ class RecommendationStrategy(ABC):
             추천된 메뉴 목록
         """
         ...
+    
+    @abstractmethod
+    def get_all_menus(self) -> list[Menu]:
+        """모든 메뉴 조회
+
+        Returns:
+            모든 메뉴 목록
+        """
+        ...
