@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any
 from app.domain.interfaces.recommender import RecommendationStrategy
 from app.domain.entities.menu import Menu
 from app.domain.value_objects.recommendation_context import RecommendationContext
@@ -14,7 +15,7 @@ class MenuRecommendationService:
         self,
         included_categories: list[str] | None = None,
         excluded_categories: list[str] | None = None,
-        attributes: dict[str, bool] | None = None,
+        attributes: dict[str, Any] | None = None,
         limit: int = 5,
     ) -> list[Menu]:
         """메뉴 추천
@@ -38,9 +39,5 @@ class MenuRecommendationService:
         return self._strategy.recommend(context, limit)
 
     def get_all_menus(self) -> list[Menu]:
-        """모든 메뉴 조회
-
-        Returns:
-            모든 메뉴 목록
-        """
+        """모든 메뉴 조회"""
         return self._strategy.get_all_menus()

@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel, Field
 
 
@@ -14,10 +15,10 @@ class MenuRecommendRequest(BaseModel):
         description="제외할 카테고리 목록",
         examples=["japanese"]
     )
-    attributes: dict[str, bool] | None = Field(
+    attributes: dict[str, Any] | None = Field(
         None,
-        description="메뉴 속성 필터 (예: {'is_spicy': true})",
-        examples=[{"is_spicy": True, "is_soup": True}]
+        description="메뉴 속성 필터 (예: {'main_base': 'rice', 'spiciness': 2})",
+        examples=[{"main_base": "rice", "spiciness": 2}]
     )
     limit: int = Field(
         default=5,

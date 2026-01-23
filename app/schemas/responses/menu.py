@@ -1,59 +1,25 @@
+from typing import Any
 from pydantic import BaseModel
-from datetime import datetime
 
 
 class MenuResponse(BaseModel):
     """메뉴 응답"""
+    model_config = {"from_attributes": True}
 
     id: str
     name: str
     category: str
     description: str | None = None
     
-    # --- 기본 속성 ---
-    is_hot: bool | None = None
-    is_soup: bool | None = None
-    is_noodle: bool | None = None
-    is_rice: bool | None = None
-    is_bread: bool | None = None
+    # --- 핵심 속성 ---
+    main_base: str | None = None
+    spiciness: int | None = None
+    temperature: str | None = None
+    heaviness: int | None = None
     
-    # --- 맛 ---
-    is_spicy: bool | None = None
-    is_sweet: bool | None = None
-    is_salty: bool | None = None
-    is_sour: bool | None = None
-    is_bitter: bool | None = None
-    is_greasy: bool | None = None
-
-    # --- 식감 ---
-    is_crispy: bool | None = None
-    is_chewy: bool | None = None
-    is_soft: bool | None = None
-
-    # --- 재료 ---
-    is_meat: bool | None = None
-    is_seafood: bool | None = None
-    is_vegetable: bool | None = None
-
-    # --- 상황 ---
-    is_breakfast: bool | None = None
-    is_lunch: bool | None = None
-    is_dinner: bool | None = None
-    is_snack: bool | None = None
-    is_late_night: bool | None = None
-    is_hangover: bool | None = None
-    is_alcohol_pairing: bool | None = None
-
-    # --- 건강 ---
-    is_vegan: bool | None = None
-    is_vegetarian: bool | None = None
-    is_high_protein: bool | None = None
-    is_low_carb: bool | None = None
-    is_light: bool | None = None
-
-    # --- 기타 ---
-    is_seasonal: bool | None = None
-    is_popular: bool | None = None
+    # --- 태그 및 기타 ---
+    tags: set[str] | list[str] | None = None
+    search_keywords: list[str] | None = None
 
 
 class MenuRecommendResponse(BaseModel):
@@ -64,14 +30,21 @@ class MenuRecommendResponse(BaseModel):
     
     @staticmethod
     def create(menus: list) -> "MenuRecommendResponse":
+        from datetime import datetime
         return MenuRecommendResponse(
             data=[
                 MenuResponse(
-                    # 엔티티의 모든 속성을 동적으로 매핑
-                    **{
-                        k: v for k, v in m.__dict__.items() 
-                        if k in MenuResponse.model_fields and v is not None
-                    }
+                    # 엔티티의 Enum 값들을 문자열/정수로 변환하여 매핑
+                    id=m.id,
+                    name=m.name,
+                    category=m.category.value if hasattr(m.category, "value") else m.category,
+                    description=m.description,
+                    main_base=m.main_base.value if hasattr(m.main_base, "value") else m.main_base,
+                    spiciness=m.spiciness.value if hasattr(m.spiciness, "value") else m.spiciness,
+                    temperature=m.temperature.value if hasattr(m.temperature, "value") else m.temperature,
+                    heaviness=m.heaviness.value if hasattr(m.heaviness, "value") else m.heaviness,
+                    tags=m.tags,
+                    search_keywords=m.search_keywords
                 )
                 for m in menus
             ],

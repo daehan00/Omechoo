@@ -1,91 +1,77 @@
 import csv
+import os
 from pathlib import Path
-from typing import List, Optional
-
 from app.domain.interfaces.repository import MenuRepository
-from app.domain.entities.menu import Menu, MenuCategory
+from app.domain.entities.menu import (
+    Menu, MenuCategory, MainBase, Spiciness, Temperature, Heaviness, MealTime
+)
 
 
 class InMemoryMenuRepository(MenuRepository):
-    """CSV 기반 In-Memory 메뉴 저장소"""
-
+    """테스트/개발용 In-Memory 메뉴 저장소 (CSV 기반)"""
+    
     def __init__(self):
-        self._menus: List[Menu] = []
-        csv_path = "menu.csv"
-        self._load_from_csv(csv_path)
+        self._menus = self._load_from_csv()
+    
+    def _load_from_csv(self) -> list[Menu]:
+        menus = []
+        # 현재 파일의 디렉토리 경로 구하기
+        current_dir = Path(__file__).parent
+        csv_path = current_dir / "menu.csv"
+        
+        if not csv_path.exists():
+            return []
 
-    def _load_from_csv(self, csv_path: str | Path) -> None:
-        csv_path = Path(__file__).parent / Path(csv_path)
-
-        with csv_path.open(encoding="utf-8") as f:
+        with open(csv_path, mode='r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-
             for row in reader:
-                self._menus.append(self._row_to_menu(row))
+                try:
+                    menus.append(self._parse_row(row))
+                except Exception as e:
+                    print(f"Error parsing row {row['id']}: {e}")
+                    continue
+        return menus
 
-    def _row_to_menu(self, row: dict) -> Menu:
-        def to_bool(value: str) -> Optional[bool]:
-            if value == "" or value is None:
-                return None
-            return value.lower() == "true"
-
-        def to_list(value: str) -> list[str]:
-            return value.split("|") if value else []
-
+    def _parse_row(self, row: dict) -> Menu:
+        # 1. 기본 필드
+        menu_id = row['id']
+        name = row['name']
+        category = MenuCategory(row['category'])
+        description = row['description'] if row['description'] else None
+        
+        # 2. 리스트/세트 파싱 (| 구분자)
+        search_keywords = row['search_keywords'].split('|') if row['search_keywords'] else []
+        
+        available_times_str = row['available_times'].split('|') if row['available_times'] else []
+        available_times = {MealTime(t.strip()) for t in available_times_str if t.strip()}
+        
+        tags = set(row['tags'].split('|')) if row['tags'] else set()
+        
+        # 3. Enum/IntEnum 파싱
+        main_base = MainBase(row['main_base'])
+        spiciness = Spiciness(int(row['spiciness']))
+        temperature = Temperature(row['temperature'])
+        heaviness = Heaviness(int(row['heaviness']))
+        
         return Menu(
-            id=row["id"],
-            name=row["name"],
-            category=MenuCategory[row["category"]],
-            description=row.get("description") or None,
-
-            search_keywords=to_list(row.get("search_keywords", "")),
-
-            is_hot=to_bool(row.get("is_hot", "")),
-            is_soup=to_bool(row.get("is_soup", "")),
-            is_noodle=to_bool(row.get("is_noodle", "")),
-            is_rice=to_bool(row.get("is_rice", "")),
-            is_bread=to_bool(row.get("is_bread", "")),
-
-            is_spicy=to_bool(row.get("is_spicy", "")),
-            is_sweet=to_bool(row.get("is_sweet", "")),
-            is_salty=to_bool(row.get("is_salty", "")),
-            is_sour=to_bool(row.get("is_sour", "")),
-            is_bitter=to_bool(row.get("is_bitter", "")),
-            is_greasy=to_bool(row.get("is_greasy", "")),
-
-            is_crispy=to_bool(row.get("is_crispy", "")),
-            is_chewy=to_bool(row.get("is_chewy", "")),
-            is_soft=to_bool(row.get("is_soft", "")),
-
-            is_meat=to_bool(row.get("is_meat", "")),
-            is_seafood=to_bool(row.get("is_seafood", "")),
-            is_vegetable=to_bool(row.get("is_vegetable", "")),
-
-            is_breakfast=to_bool(row.get("is_breakfast", "")),
-            is_lunch=to_bool(row.get("is_lunch", "")),
-            is_dinner=to_bool(row.get("is_dinner", "")),
-            is_snack=to_bool(row.get("is_snack", "")),
-            is_late_night=to_bool(row.get("is_late_night", "")),
-            is_hangover=to_bool(row.get("is_hangover", "")),
-            is_alcohol_pairing=to_bool(row.get("is_alcohol_pairing", "")),
-
-            is_vegan=to_bool(row.get("is_vegan", "")),
-            is_vegetarian=to_bool(row.get("is_vegetarian", "")),
-            is_high_protein=to_bool(row.get("is_high_protein", "")),
-            is_low_carb=to_bool(row.get("is_low_carb", "")),
-            is_light=to_bool(row.get("is_light", "")),
-
-            is_seasonal=to_bool(row.get("is_seasonal", "")),
-            is_popular=to_bool(row.get("is_popular", "")),
+            id=menu_id,
+            name=name,
+            category=category,
+            description=description,
+            search_keywords=search_keywords,
+            main_base=main_base,
+            spiciness=spiciness,
+            temperature=temperature,
+            heaviness=heaviness,
+            available_times=available_times,
+            tags=tags
         )
-
-    # --- Repository Interface ---
-
+    
     def get_all(self) -> list[Menu]:
         return self._menus.copy()
-
-    def get_by_id(self, menu_id: str) -> Menu | None:
-        return next((m for m in self._menus if m.id == menu_id), None)
-
+    
     def get_by_category(self, category: MenuCategory) -> list[Menu]:
         return [m for m in self._menus if m.category == category]
+    
+    def get_by_id(self, menu_id: str) -> Menu | None:
+        return next((m for m in self._menus if m.id == menu_id), None)
