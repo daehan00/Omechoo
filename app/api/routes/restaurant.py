@@ -34,6 +34,6 @@ async def search_restaurants(
     )
     
     # 비동기 호출
-    restaurants = await service.search_by_menu(menu, location)
+    restaurants = await service.search_by_menu(menu, location, body.radius_km)
     
-    return RestaurantSearchResponse.create(restaurants)
+    return RestaurantSearchResponse.create(restaurants, location)

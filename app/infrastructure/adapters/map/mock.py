@@ -14,6 +14,7 @@ class MockRestaurantLocator(RestaurantLocator):
         query: str,
         location: Location,
         radius_km: float,
+        max_result: int = 50
     ) -> list[Restaurant]:
         """In-Memory Repo에서 메뉴 이름(query)으로 검색"""
         # 비동기 인터페이스지만, 인메모리 작업이므로 바로 반환

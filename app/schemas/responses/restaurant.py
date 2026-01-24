@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from app.domain.entities.restaurant import Restaurant, Location
 
 
 class LocationResponse(BaseModel):
@@ -16,6 +17,7 @@ class RestaurantResponse(BaseModel):
     location: LocationResponse | None = None
     urls: list[str] | None = None
     menu_items: list[str] | None = None
+    distance: int | None = None
 
 
 class RestaurantSearchResponse(BaseModel):
@@ -25,7 +27,10 @@ class RestaurantSearchResponse(BaseModel):
     meta: dict
     
     @staticmethod
-    def create(restaurants: list) -> "RestaurantSearchResponse":
+    def create(
+        restaurants: list[Restaurant],
+        location: Location,
+    ) -> "RestaurantSearchResponse":
         return RestaurantSearchResponse(
             data=[
                 RestaurantResponse(
@@ -38,12 +43,15 @@ class RestaurantSearchResponse(BaseModel):
                         address=r.location.address
                     ) if r.location else None,
                     urls=r.urls,
-                    menu_items=r.menu_items
+                    menu_items=r.menu_items,
+                    distance=r.distance
                 )
                 for r in restaurants
             ],
             meta={
                 "timestamp": datetime.now().isoformat(),
                 "count": len(restaurants),
+                "latitude": location.latitude,
+                "longitude": location.longitude
             }
         )

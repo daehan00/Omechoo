@@ -11,6 +11,7 @@ class RestaurantLocator(ABC):
         query: str,
         location: Location,
         radius_km: float,
+        max_result: int = 50
     ) -> list[Restaurant]:
         """키워드로 식당 검색
         

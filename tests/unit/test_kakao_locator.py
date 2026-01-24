@@ -226,3 +226,29 @@ async def test_search_retry_failure(kakao_locator):
         await kakao_locator.search("fail", location, radius_km=1.0)
         
     assert route.call_count == 3 # Max retries reached
+
+@pytest.mark.asyncio
+@respx.mock
+async def test_search_max_result(kakao_locator):
+    """max_result 파라미터 동작 테스트: 지정된 개수만큼만 결과를 반환해야 함"""
+    
+    # Mock Response: 15 items in one page
+    docs = [create_mock_item("Item", i) for i in range(15)]
+    mock_response = {
+        "meta": {"is_end": False, "pageable_count": 100, "total_count": 100},
+        "documents": docs
+    }
+    
+    route = respx.get(SEARCH_URL).mock(return_value=Response(200, json=mock_response))
+    
+    location = Location(latitude=37.5, longitude=127.0)
+    
+    # Request only 5 items
+    target_count = 5
+    results = await kakao_locator.search("query", location, radius_km=1.0, max_result=target_count)
+    
+    # Verify
+    assert len(results) == target_count
+    assert results[0].name == "Item_0"
+    assert results[-1].name == f"Item_{target_count-1}"
+    assert route.call_count == 1 # Should stop after fetching enough items (1 page has 15 > 5)

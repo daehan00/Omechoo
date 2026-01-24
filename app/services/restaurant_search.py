@@ -13,6 +13,8 @@ class RestaurantSearchService:
         self,
         menu: Menu,
         location: Location,
+        radius_km: float = 1.0,
+        max_result: int = 50,
     ) -> list[Restaurant]:
         """메뉴로 식당 검색
         
@@ -21,24 +23,17 @@ class RestaurantSearchService:
         2. Lazy Validation & Fallback:
            - 1차: 반경 1km 검색
            - 실패 시: 반경 3km 확장 검색
-        """
+        """    
         # 1. 키워드 결정 (매핑된 키워드 없으면 메뉴명 사용)
-        keywords = menu.search_keywords if menu.search_keywords else [menu.name]
-        
-        found_restaurants: dict[str, Restaurant] = {} # 중복 제거용
-        
-        # 2. 검색 실행 (Fallback 로직)
-        for keyword in keywords:
-            # 1차 시도: 1km
-            results = await self._locator.search(keyword, location, radius_km=1.0)
-            
-            # 실패 시 Fallback: 3km
-            if not results:
-                results = await self._locator.search(keyword, location, radius_km=3.0)
-            
-            # 결과 병합 (중복 제거)
-            for r in results:
-                if r.id not in found_restaurants:
-                    found_restaurants[r.id] = r
+        # keyword = " ".join(menu.search_keywords) if menu.search_keywords else menu.name
+        keyword = menu.name
                 
-        return list(found_restaurants.values())
+        # 2. 검색 실행 (Fallback 로직)
+        # 1차 시도
+        results = await self._locator.search(keyword, location, radius_km, max_result)
+        
+        # 실패 시 Fallback: radius + 2km
+        if not results:
+            results = await self._locator.search(keyword, location, radius_km+2, max_result)
+        
+        return results
