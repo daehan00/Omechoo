@@ -1,5 +1,6 @@
 import logging
 from typing import cast
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
@@ -13,8 +14,7 @@ if getattr(sys, 'frozen', False):
 else:
     BASE_DIR = Path(__file__).parent
 
-print(BASE_DIR)
-
+load_dotenv()
 
 from app.api.routes import menu, restaurant, health
 from app.core.config import Settings
@@ -48,5 +48,6 @@ app.include_router(restaurant.router)
 app.include_router(health.router)
 
 if __name__ == "__main__":
+    print("\n".join([f"{k}: {v}" for k, v in settings.model_dump().items()]))
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

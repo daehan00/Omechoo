@@ -14,7 +14,7 @@ limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/search", response_model=RestaurantSearchResponse)
-@limiter.limit("10/minute")
+@limiter.limit("20/minute")
 async def search_restaurants(
     request: Request,
     body: RestaurantSearchRequest,
@@ -33,6 +33,7 @@ async def search_restaurants(
         longitude=body.longitude
     )
     
-    restaurants = service.search_by_menu(menu, location)
+    # 비동기 호출
+    restaurants = await service.search_by_menu(menu, location)
     
     return RestaurantSearchResponse.create(restaurants)

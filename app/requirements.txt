@@ -3,3 +3,9 @@ fastapi
 sqlalchemy
 pydantic
 pydantic_settings
+httpx
+dotenv
+respx
+pytest
+pytest-asyncio
+tenacity

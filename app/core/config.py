@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # Phase 2+ (미래 확장)
     WEATHER_API_ENABLED: bool = False
     WEATHER_API_KEY: str = ""
+
+    KAKAO_REST_API_KEY: str = ""
+    KAKAO_BASE_URL: str = "https://dapi.kakao.com/v2/local"
     
     class Config:
         env_file = ".env"

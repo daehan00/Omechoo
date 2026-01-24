@@ -6,7 +6,7 @@ class RestaurantLocator(ABC):
     """식당 검색 인터페이스"""
     
     @abstractmethod
-    def search(
+    async def search(
         self,
         query: str,
         location: Location,

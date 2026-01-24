@@ -9,12 +9,12 @@ class MockRestaurantLocator(RestaurantLocator):
     def __init__(self):
         self._repo = InMemoryRestaurantRepository()
         
-    def search(
+    async def search(
         self,
         query: str,
         location: Location,
         radius_km: float,
     ) -> list[Restaurant]:
         """In-Memory Repo에서 메뉴 이름(query)으로 검색"""
-        # Phase 1: 실제 거리 계산 없이 단순히 쿼리가 포함된 식당 반환
+        # 비동기 인터페이스지만, 인메모리 작업이므로 바로 반환
         return self._repo.search_by_menu(query)

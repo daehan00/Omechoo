@@ -24,3 +24,6 @@ class Restaurant:
     
     # 메뉴 목록 (간단히 문자열 리스트로 관리)
     menu_items: list[str] | None = None
+    
+    # 검색 위치로부터의 거리 (미터)
+    distance: int | None = None

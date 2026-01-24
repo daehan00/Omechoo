@@ -9,7 +9,7 @@ class RestaurantSearchService:
     def __init__(self, locator: RestaurantLocator):
         self._locator = locator
     
-    def search_by_menu(
+    async def search_by_menu(
         self,
         menu: Menu,
         location: Location,
@@ -30,11 +30,11 @@ class RestaurantSearchService:
         # 2. 검색 실행 (Fallback 로직)
         for keyword in keywords:
             # 1차 시도: 1km
-            results = self._locator.search(keyword, location, radius_km=1.0)
+            results = await self._locator.search(keyword, location, radius_km=1.0)
             
             # 실패 시 Fallback: 3km
             if not results:
-                results = self._locator.search(keyword, location, radius_km=3.0)
+                results = await self._locator.search(keyword, location, radius_km=3.0)
             
             # 결과 병합 (중복 제거)
             for r in results:
