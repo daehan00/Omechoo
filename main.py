@@ -18,10 +18,16 @@ load_dotenv()
 
 from app.api.routes import menu, restaurant, health
 from app.core.config import Settings
+from app.db.base import Base
+from app.db.session import engine
+from app.models import restaurant_detail  # 모델 등록을 위해 필수
 
 logging.basicConfig(level=logging.INFO)
 
 settings = Settings()
+
+# DB 테이블 생성 (개발 편의상 자동 생성)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.APP_NAME,

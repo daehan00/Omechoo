@@ -1,39 +1,25 @@
 import asyncio
 import re
-from dataclasses import dataclass
+from datetime import datetime
 from playwright.async_api import async_playwright
+from app.domain.entities.restaurant_detail import RestaurantDetail, MenuDetail
+from app.domain.interfaces.scraper import RestaurantScraper
 
-
-@dataclass
-class ScrapedMenu:
-    name: str
-    price: str
-
-
-@dataclass
-class KakaoRestaurantDetail:
-    rating: str
-    review_count: str
-    blog_review_count: str
-    business_status: list[str]
-    menus: list[ScrapedMenu]
-
-
-class KakaoRestaurantScraper:
+class KakaoRestaurantScraper(RestaurantScraper):
     def __init__(self):
         pass
 
-    async def get_details(self, place_url: str) -> KakaoRestaurantDetail:
+    async def get_details(self, url: str) -> RestaurantDetail:
         """
         식당 상세 페이지 URL을 받아 크롤링하여 추가 정보를 반환합니다.
         """
         # URL에 #menuInfo가 없으면 추가 (메뉴 탭 강제 이동)
-        if "#" not in place_url:
-            url = f"{place_url}#menuInfo"
+        if "#" not in url:
+            scrap_url = f"{url}#menuInfo"
         else:
-            url = place_url
+            scrap_url = url
 
-        print(f"[Scraper] Crawling: {url}")
+        print(f"[Scraper] Crawling: {scrap_url}")
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -44,32 +30,36 @@ class KakaoRestaurantScraper:
             
             try:
                 # 페이지 로드 타임아웃 10초
-                await page.goto(url, wait_until='networkidle', timeout=10000)
+                await page.goto(scrap_url, wait_until='networkidle', timeout=10000)
                 await asyncio.sleep(1.5) # JS 렌더링 및 탭 전환 대기
                 
                 body_text = await page.inner_text('body')
                 return self.parse_body(body_text)
                 
             except Exception as e:
-                print(f"[Scraper] Error scraping {place_url}: {e}")
+                print(f"[Scraper] Error scraping {url}: {e}")
                 # 실패 시 빈 객체 반환 (상위 로직에서 처리)
-                return KakaoRestaurantDetail("0.0", "0", "0", [], [])
+                return RestaurantDetail(
+                    rating="0.0", 
+                    review_count="0", 
+                    blog_review_count="0", 
+                    business_status=[], 
+                    menus=[],
+                    source="kakao_crawl_failed"
+                )
             finally:
                 await browser.close()
 
-    def parse_body(self, body_text: str) -> KakaoRestaurantDetail:
+    def parse_body(self, body_text: str) -> RestaurantDetail:
         """HTML 텍스트에서 데이터를 추출합니다 (Testable)."""
         rating = self._extract_regex(r'별점\s+([0-9.]+)', body_text, "0.0")
         review_count = self._extract_regex(r'후기\s+([0-9,]+)', body_text, "0").replace(',', '')
         blog_count = self._extract_regex(r'블로그\s*([0-9,]+)', body_text, "0").replace(',', '')
         
         # 영업 상태 분리 로직
-        # 1. 전체 라인을 먼저 찾음 (예: 영업 마감내일 10:50 오픈)
         raw_status = self._extract_regex(r'(영업\s*(?:중|마감|종료)[^\n]*)', body_text, "")
         status_list = []
         if raw_status:
-            # 2. 상태(영업 중/마감)와 시간 정보 분리
-            # 예: "영업 마감" / "내일 10:50 오픈"
             split_match = re.match(r'(영업\s*(?:중|마감|종료))\s*(.*)', raw_status)
             if split_match:
                 status_main = split_match.group(1).strip()
@@ -84,19 +74,21 @@ class KakaoRestaurantScraper:
         
         menus = self._parse_menus(body_text)
         
-        return KakaoRestaurantDetail(
+        return RestaurantDetail(
             rating=rating,
             review_count=review_count,
             blog_review_count=blog_count,
             business_status=status_list,
-            menus=menus
+            menus=menus,
+            source="kakao_crawl",
+            updated_at=datetime.now()
         )
 
     def _extract_regex(self, pattern: str, text: str, default: str) -> str:
         match = re.search(pattern, text)
         return match.group(1) if match else default
 
-    def _parse_menus(self, text: str) -> list[ScrapedMenu]:
+    def _parse_menus(self, text: str) -> list[MenuDetail]:
         menus = []
         lines = [line.strip() for line in text.split('\n') if line.strip()]
         
@@ -116,7 +108,6 @@ class KakaoRestaurantScraper:
                 if name and len(name) < 50:
                     # 중복 방지
                     if not any(m.name == name for m in menus):
-                        menus.append(ScrapedMenu(name=name, price=price))
+                        menus.append(MenuDetail(name=name, price=price))
         
         return menus[:20]
-

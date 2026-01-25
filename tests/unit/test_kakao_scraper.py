@@ -1,5 +1,6 @@
 import pytest
 from app.infrastructure.scrapers.kakao import KakaoRestaurantScraper
+from app.domain.entities.restaurant_detail import RestaurantDetail
 
 @pytest.fixture
 def scraper():
@@ -21,12 +22,14 @@ def test_parse_body_basic_info(scraper):
     
     result = scraper.parse_body(html_text)
     
+    assert isinstance(result, RestaurantDetail)
     assert result.rating == "4.0"
     assert result.review_count == "23"
     assert result.blog_review_count == "13"
     assert isinstance(result.business_status, list)
     assert result.business_status[0] == "영업 마감"
     assert result.business_status[1] == "내일 10:50 오픈"
+    assert result.source == "kakao_crawl"
 
 def test_parse_body_menus(scraper):
     """메뉴 파싱 테스트"""
@@ -53,6 +56,7 @@ def test_parse_body_empty(scraper):
     """빈 텍스트 파싱 시 기본값 반환 테스트"""
     result = scraper.parse_body("")
     
+    assert isinstance(result, RestaurantDetail)
     assert result.rating == "0.0"
     assert result.review_count == "0"
     assert result.business_status == ["정보 없음"]

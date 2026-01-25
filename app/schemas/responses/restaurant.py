@@ -71,6 +71,12 @@ class RestaurantDetailResponse(BaseModel):
 
     @staticmethod
     def create(detail: Any) -> "RestaurantDetailResponse":
+        timestamp = datetime.now().isoformat()
+        if hasattr(detail, "updated_at") and detail.updated_at:
+             timestamp = detail.updated_at.isoformat()
+             
+        source = getattr(detail, "source", "kakao_map_crawl")
+
         return RestaurantDetailResponse(
             data={
                 "rating": detail.rating,
@@ -83,7 +89,7 @@ class RestaurantDetailResponse(BaseModel):
                 ]
             },
             meta={
-                "timestamp": datetime.now().isoformat(),
-                "source": "kakao_map_crawl"
+                "timestamp": timestamp,
+                "source": source
             }
         )

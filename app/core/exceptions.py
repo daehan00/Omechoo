@@ -13,6 +13,11 @@ class RestaurantNotFoundError(OmechooError):
     pass
 
 
+class InvalidUrlError(OmechooError):
+    """유효하지 않은 URL"""
+    pass
+
+
 class ExternalAPIError(OmechooError):
     """외부 API 오류"""
     

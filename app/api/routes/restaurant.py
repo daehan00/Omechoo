@@ -2,8 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from app.api.dependencies import get_restaurant_service, get_menu_repo
+from app.api.dependencies import (
+    get_restaurant_service, 
+    get_menu_repo,
+    get_restaurant_detail_service
+)
 from app.services.restaurant_search import RestaurantSearchService
+from app.services.restaurant_detail import RestaurantDetailService
 from app.domain.interfaces.repository import MenuRepository
 from app.domain.entities.restaurant import Location
 from app.schemas.requests.restaurant import RestaurantSearchRequest, RestaurantCrawlRequest
@@ -11,14 +16,13 @@ from app.schemas.responses.restaurant import (
     RestaurantSearchResponse, 
     RestaurantDetailResponse
 )
-from app.infrastructure.scrapers.kakao import KakaoRestaurantScraper
 
 router = APIRouter(prefix="/api/restaurant", tags=["restaurant"])
 limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/search", response_model=RestaurantSearchResponse)
-@limiter.limit("20/minute")
+@limiter.limit("10/minute")
 async def search_restaurants(
     request: Request,
     body: RestaurantSearchRequest,
@@ -46,16 +50,19 @@ async def search_restaurants(
 
 
 @router.post("/detail", response_model=RestaurantDetailResponse)
-@limiter.limit("5/minute")
+@limiter.limit("3/second")
 async def crawl_restaurant_detail(
     request: Request,
     body: RestaurantCrawlRequest,
+    service: RestaurantDetailService = Depends(get_restaurant_detail_service),
 ):
-    """식당 상세 정보 크롤링 API (실시간)
+    """식당 상세 정보 크롤링 API (캐싱 적용)
     
-    주의: Playwright 브라우저를 띄워 크롤링하므로 응답까지 2~5초 소요될 수 있습니다.
+    - 1차: DB 캐시 조회 (유효기간 3일)
+    - 2차: 캐시 없거나 만료 시 실시간 크롤링 후 DB 저장
     """
-    scraper = KakaoRestaurantScraper()
-    detail = await scraper.get_details(body.url)
+    
+    # 서비스 호출
+    detail = await service.get_detail(body.url)
     
     return RestaurantDetailResponse.create(detail)
