@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오메추 Frontend Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; max-width: 900px; margin: 0 auto; }
+        section { border: 1px solid #ccc; padding: 20px; margin-bottom: 25px; border-radius: 8px; background-color: #f9f9f9; }
+        h2 { margin-top: 0; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label.main-label { display: block; font-weight: bold; margin-bottom: 5px; }
+        
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .filter-section { margin-bottom: 15px; padding: 10px; background: white; border: 1px solid #eee; border-radius: 4px; }
+        .filter-title { font-size: 0.9em; font-weight: bold; color: #555; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;}
+
+        input[type="number"], input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
+        select { width: 100%; padding: 8px; }
+        
+        button { padding: 10px 20px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 1em; }
+        button:hover { background-color: #0056b3; }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 15px; }
+        .menu-item { border: 1px solid #ddd; padding: 15px; border-radius: 8px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+        .menu-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .menu-header h3 { margin: 0; color: #007bff; }
+        .menu-cat { font-size: 0.8em; color: #888; background: #eee; padding: 2px 6px; border-radius: 4px; }
+        
+        .menu-props { font-size: 0.85em; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px; color: #555; }
+        .prop-row { display: flex; justify-content: space-between; border-bottom: 1px dashed #eee; }
+        
+        .tags { margin-bottom: 10px; }
+        .tag { display: inline-block; background: #e2f0fb; color: #007bff; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; margin-right: 4px; margin-bottom: 4px; }
+        
+        .select-btn { background-color: #28a745; width: 100%; margin-top: auto; }
+
+        /* Restaurant Cards */
+        .restaurant-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 20px; 
+            margin-top: 20px; 
+        }
+        .restaurant-card { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            border-radius: 8px; 
+            background: white; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .res-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .res-name { font-size: 1.1em; font-weight: bold; color: #333; margin: 0; }
+        .res-dist { font-size: 0.85em; color: #e83e8c; font-weight: bold; background: #fff0f5; padding: 2px 6px; border-radius: 4px; }
+        .res-info { font-size: 0.85em; color: #666; margin-bottom: 10px; flex-grow: 1; }
+        .res-info div { margin-bottom: 4px; display: flex; align-items: flex-start; }
+        .res-info i { margin-right: 6px; width: 15px; text-align: center; }
+        .res-link { 
+            display: inline-block; 
+            width: 100%; 
+            text-align: center; 
+            padding: 10px; 
+            background-color: #fee500; 
+            color: #3c1e1e; 
+            text-decoration: none; 
+            border-radius: 6px; 
+            font-weight: bold;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+        .res-link:hover { background-color: #fada00; }
+    </style>
+</head>
+<body>
+
+    <h1>오메추 테스트</h1>
+
+    <!-- 1. Menu Recommendation -->
+    <section>
+        <h2>1. Menu Recommendation</h2>
+        
+        <div class="form-group">
+            <label class="main-label">Limit:</label>
+            <input type="number" id="rec-limit" value="5" min="1" max="10" style="width: 100px;">
+        </div>
+
+        <div style="display: flex; gap: 15px;">
+            <div class="filter-section" style="flex: 1;">
+                <div class="filter-title">Included Categories</div>
+                <div class="grid-container" id="included-cats-container"></div>
+            </div>
+            <div class="filter-section" style="flex: 1;">
+                <div class="filter-title">Excluded Categories</div>
+                <div class="grid-container" id="excluded-cats-container"></div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Main Base</div>
+            <select id="filter-main-base">
+                <option value="">Any</option>
+                <option value="rice">Rice (밥)</option>
+                <option value="noodle">Noodle (면)</option>
+                <option value="bread">Bread (빵/밀가루)</option>
+                <option value="meat">Meat (고기)</option>
+                <option value="seafood">Seafood (해산물)</option>
+                <option value="vegetable">Vegetable (채소)</option>
+                <option value="etc">Etc (기타)</option>
+            </select>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Spiciness</div>
+            <select id="filter-spiciness">
+                <option value="">Any</option>
+                <option value="0">0 - None</option>
+                <option value="1">1 - Little</option>
+                <option value="2">2 - Mild</option>
+                <option value="3">3 - Spicy</option>
+                <option value="4">4 - Hell</option>
+            </select>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Heaviness</div>
+            <select id="filter-heaviness">
+                <option value="">Any</option>
+                <option value="1">1 - Light</option>
+                <option value="2">2 - Medium</option>
+                <option value="3">3 - Heavy</option>
+            </select>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Temperature</div>
+            <select id="filter-temperature">
+                <option value="">Any</option>
+                <option value="hot">Hot</option>
+                <option value="cold">Cold</option>
+                <option value="neutral">Neutral</option>
+            </select>
+        </div>
+
+        <div class="filter-section">
+            <div class="filter-title">Tags</div>
+            <div class="grid-container" id="tags-container"></div>
+        </div>
+        
+        <button id="btn-recommend">Get Recommendations</button>
+        <button id="btn-all-menus" style="background-color: #6c757d; margin-left: 10px;">Get All Menus</button>
+
+        <div id="menu-results" class="menu-grid"></div>
+    </section>
+
+    <!-- 2. Restaurant Search -->
+    <section>
+        <h2>2. Restaurant Search</h2>
+        <div class="form-group">
+            <label class="main-label">Selected Menu:</label>
+            <input type="hidden" id="search-menu-id">
+            <input type="text" id="search-menu-name" readonly disabled placeholder="Select a menu above" style="background-color: #e9ecef;">
+        </div>
+        
+        <div style="display: flex; gap: 10px; align-items: flex-end;">
+            <div class="form-group" style="flex: 1;">
+                <label class="main-label">Latitude:</label>
+                <input type="number" id="search-lat" value="37.5" step="0.000001">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label class="main-label">Longitude:</label>
+                <input type="number" id="search-lon" value="127.0" step="0.000001">
+            </div>
+            <div class="form-group" style="margin-bottom: 15px;">
+                 <button id="btn-loc" style="background-color: #17a2b8; padding: 8px 15px;">📍 Get Loc</button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <div class="form-group" style="flex: 1;">
+                <label class="main-label">Radius (km):</label>
+                <input type="number" id="search-radius" value="1.0" step="0.1">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label class="main-label">Max Results:</label>
+                <input type="number" id="search-max" value="5" step="1">
+            </div>
+        </div>
+
+        <button id="btn-search-res" style="width: 100%;">Search Restaurants</button>
+
+        <h3>Results:</h3>
+        <div id="restaurant-results" class="restaurant-grid">
+            <p style="color: #888;">No results yet. Select a menu and search.</p>
+        </div>
+    </section>
+
+    <script type="module">
+        import { recommendMenu, getAllMenus, displayMenus } from './menu.js';
+        import { searchRestaurants, displayRestaurants, getCurrentLocation } from './restaurant.js';
+
+        const TAGS = [
+            "SOUP", "GREASY", "HANGOVER", "SOLO_EATING", "SEASONAL", 
+            "VEGETABLE", "HEALTHY", "DELIVERY", "SEAFOOD", "EXPENSIVE", 
+            "DATE", "ATMOSPHERE", "SNACK", "STREET_FOOD", "SOUL_FOOD", 
+            "MEAT", "ALCOHOL_PAIRING", "GROUP", "CRISPY", "LIGHT"
+        ];
+        const CATEGORIES = [
+            "korean", "chinese", "japanese", "western", "asian", 
+            "cafe", "fast_food", "fusion", "buffet", "other"
+        ];
+
+        // Init UI
+        function renderCheckboxes(containerId, items, prefix) {
+            const container = document.getElementById(containerId);
+            const p = prefix || 'chk';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <input type="checkbox" id="${p}-${item}" value="${item}">
+                    <label for="${p}-${item}" style="cursor:pointer;">${item}</label>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        renderCheckboxes('tags-container', TAGS, 'tag');
+        renderCheckboxes('included-cats-container', CATEGORIES, 'inc-cat');
+        renderCheckboxes('excluded-cats-container', CATEGORIES, 'exc-cat');
+
+        // Menu Logic
+        document.getElementById('btn-all-menus').onclick = async () => {
+            try {
+                const menus = await getAllMenus();
+                displayMenus(menus, document.getElementById('menu-results'), onMenuSelect);
+            } catch (e) { alert(e.message); }
+        };
+
+        document.getElementById('btn-recommend').onclick = async () => {
+            // Build criteria
+            const limit = document.getElementById('rec-limit').value;
+            
+            const includedCats = [];
+            document.querySelectorAll('#included-cats-container input:checked').forEach(cb => includedCats.push(cb.value));
+
+            const excludedCats = [];
+            document.querySelectorAll('#excluded-cats-container input:checked').forEach(cb => excludedCats.push(cb.value));
+
+            const attributes = {};
+            const mainBase = document.getElementById('filter-main-base').value;
+            if(mainBase) attributes.main_base = mainBase;
+
+            const spiciness = document.getElementById('filter-spiciness').value;
+            if(spiciness) attributes.spiciness = parseInt(spiciness);
+
+            const heaviness = document.getElementById('filter-heaviness').value;
+            if(heaviness) attributes.heaviness = parseInt(heaviness);
+
+            const temperature = document.getElementById('filter-temperature').value;
+            if(temperature) attributes.temperature = temperature;
+
+            document.querySelectorAll('#tags-container input:checked').forEach(cb => {
+                attributes[cb.value] = true; 
+            });
+
+            const payload = {
+                limit: parseInt(limit),
+                included_categories: includedCats.length > 0 ? includedCats : null,
+                excluded_categories: excludedCats.length > 0 ? excludedCats : null,
+                attributes: Object.keys(attributes).length > 0 ? attributes : null
+            };
+
+            try {
+                const menus = await recommendMenu(payload);
+                displayMenus(menus, document.getElementById('menu-results'), onMenuSelect);
+            } catch (e) { alert(e.message); }
+        };
+
+        function onMenuSelect(id, name) {
+            document.getElementById('search-menu-id').value = id;
+            document.getElementById('search-menu-name').value = name;
+            document.getElementById('search-menu-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Restaurant Logic
+        document.getElementById('btn-loc').onclick = async () => {
+            try {
+                const loc = await getCurrentLocation();
+                document.getElementById('search-lat').value = loc.latitude;
+                document.getElementById('search-lon').value = loc.longitude;
+            } catch (e) { alert(e.message); }
+        };
+
+        document.getElementById('btn-search-res').onclick = async () => {
+            const menuId = document.getElementById('search-menu-id').value;
+            if (!menuId) {
+                alert("Please select a menu from the recommendations first.");
+                return;
+            }
+
+            const payload = {
+                menu_id: menuId,
+                latitude: parseFloat(document.getElementById('search-lat').value),
+                longitude: parseFloat(document.getElementById('search-lon').value),
+                radius_km: parseFloat(document.getElementById('search-radius').value),
+                max_result: parseInt(document.getElementById('search-max').value)
+            };
+
+            const container = document.getElementById('restaurant-results');
+            container.innerHTML = '<p>Searching...</p>';
+            
+            try {
+                const restaurants = await searchRestaurants(payload);
+                displayRestaurants(restaurants, container);
+            } catch (e) { 
+                container.innerHTML = `<p style="color:red;">Error: ${e.message}</p>`;
+            }
+        };
+
+    </script>
+</body>
+</html>
