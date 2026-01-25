@@ -1,3 +1,4 @@
+from typing import Any
 from pydantic import BaseModel
 from datetime import datetime
 from app.domain.entities.restaurant import Restaurant, Location
@@ -53,5 +54,36 @@ class RestaurantSearchResponse(BaseModel):
                 "count": len(restaurants),
                 "latitude": location.latitude,
                 "longitude": location.longitude
+            }
+        )
+
+
+class MenuResponse(BaseModel):
+    name: str
+    price: str
+
+
+class RestaurantDetailResponse(BaseModel):
+    """식당 상세 정보 응답 (크롤링 결과)"""
+    success: bool = True
+    data: dict
+    meta: dict
+
+    @staticmethod
+    def create(detail: Any) -> "RestaurantDetailResponse":
+        return RestaurantDetailResponse(
+            data={
+                "rating": detail.rating,
+                "review_count": detail.review_count,
+                "blog_review_count": detail.blog_review_count,
+                "business_status": detail.business_status,
+                "menus": [
+                    {"name": m.name, "price": m.price}
+                    for m in detail.menus
+                ]
+            },
+            meta={
+                "timestamp": datetime.now().isoformat(),
+                "source": "kakao_map_crawl"
             }
         )
