@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Check, ChevronRight, Play, Home } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Play } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { menuApi } from '../../../api/menu';
 import { MenuResult } from '../components/MenuResult';
@@ -192,26 +192,26 @@ const MenuWizardPage: React.FC = () => {
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {/* 1. Header */}
-      <div className="py-2.5 px-4 flex items-center justify-between border-b border-gray-50 bg-white z-10">
-        <button 
-          onClick={step === 'result' ? () => navigate('/') : prevStep}
-          className="p-1.5 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
-        >
-          {step === 'result' ? <Home className="w-5 h-5 text-gray-700" /> : <ArrowLeft className="w-5 h-5 text-gray-700" />}
-        </button>
-        
-        {step !== 'result' && (
+      {/* 1. Header - 결과 화면에서는 MenuResult가 자체 헤더를 가짐 */}
+      {step !== 'result' && (
+        <div className="py-2.5 px-4 flex items-center justify-between border-b border-gray-50 bg-white z-10">
+          <button 
+            onClick={prevStep}
+            className="p-1.5 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          
           <div className="flex gap-1">
             <div className={`w-1.5 h-1.5 rounded-full ${step === 'category' ? 'bg-orange-500' : 'bg-gray-200'}`} />
             <div className={`w-1.5 h-1.5 rounded-full ${step === 'mainBase' ? 'bg-orange-500' : 'bg-gray-200'}`} />
             <div className={`w-1.5 h-1.5 rounded-full ${step === 'details' ? 'bg-orange-500' : 'bg-gray-200'}`} />
           </div>
-        )}
-        
-        {/* Empty div for layout balance if not on result page */}
-        <div className="w-8"></div>
-      </div>
+          
+          {/* Empty div for layout balance */}
+          <div className="w-8"></div>
+        </div>
+      )}
 
       {/* 2. Scrollable Content */}
       <div className={`flex-1 ${step === 'result' ? 'overflow-hidden p-0' : 'overflow-y-auto p-6 pb-24'}`}>
@@ -393,6 +393,7 @@ const MenuWizardPage: React.FC = () => {
               loading={loading}
               onRetry={reset}
               onFindRestaurant={(menuId) => navigate(`/restaurant/search?menuId=${menuId}`)}
+              onHome={() => navigate('/')}
             />
           </div>
         )}

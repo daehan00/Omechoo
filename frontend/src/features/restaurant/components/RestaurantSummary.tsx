@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, ChevronRight, X } from 'lucide-react';
+import { MapPin, ChevronRight, X, CornerUpRight } from 'lucide-react';
 import type { Restaurant } from '../../../types/restaurant';
 import { Button } from '../../../components/ui/Button';
 
@@ -63,7 +63,7 @@ export const RestaurantSummary: React.FC<RestaurantSummaryProps> = ({
              size="sm" 
              className="rounded-xl font-bold bg-gray-50 border-gray-100 text-gray-600"
            >
-             길찾기
+             <CornerUpRight />
            </Button>
         </div>
       </div>

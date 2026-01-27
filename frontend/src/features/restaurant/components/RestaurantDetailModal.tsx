@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Star, Clock, MapPin, Phone, MessageSquare } from 'lucide-react';
+import { X, Star, Clock, MapPin, Phone, MessageSquare, CornerUpRight } from 'lucide-react';
 import { restaurantApi } from '../../../api/restaurant';
 import type { Restaurant, RestaurantDetail } from '../../../types/restaurant';
 import { Button } from '../../../components/ui/Button';
@@ -167,7 +167,7 @@ export const RestaurantDetailModal: React.FC<RestaurantDetailModalProps> = ({
                }
              }}
            >
-             길찾기
+             <CornerUpRight />
            </Button>
         </div>
       </div>

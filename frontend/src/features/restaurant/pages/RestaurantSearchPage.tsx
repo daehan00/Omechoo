@@ -8,6 +8,7 @@ import { KakaoMap } from '../components/KakaoMap';
 import { RestaurantList } from '../components/RestaurantList';
 import { RestaurantSummary } from '../components/RestaurantSummary';
 import { RestaurantDetailModal } from '../components/RestaurantDetailModal';
+import { LocationSearchModal } from '../components/LocationSearchModal';
 import { Button } from '../../../components/ui/Button';
 
 type ViewMode = 'MAP' | 'LIST';
@@ -19,6 +20,7 @@ const RestaurantSearchPage: React.FC = () => {
   
   const { latitude: myLat, longitude: myLng, loading: geoLoading, error: geoError, refresh: refreshGeo } = useGeolocation();
   const [manualLocation, setManualLocation] = useState<{lat: number, lng: number} | null>(null);
+  const currentLocationName = "주변 맛집 탐색";
   
   const [viewMode, setViewMode] = useState<ViewMode>('MAP');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -28,6 +30,7 @@ const RestaurantSearchPage: React.FC = () => {
   const [mapCenter, setMapCenter] = useState({ lat: 37.5665, lng: 126.9780 });
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
   const [showReSearch, setShowReSearch] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [detailRestaurant, setDetailRestaurant] = useState<Restaurant | null>(null);
@@ -35,6 +38,13 @@ const RestaurantSearchPage: React.FC = () => {
   // Active Location: Real GPS or Manual Fallback
   const activeLat = myLat ?? manualLocation?.lat;
   const activeLng = myLng ?? manualLocation?.lng;
+
+  // Auto-open search modal on Geo Error
+  useEffect(() => {
+    if (geoError && !activeLat) {
+      setIsSearchModalOpen(true);
+    }
+  }, [geoError, activeLat]);
 
   useEffect(() => {
     if (activeLat && activeLng) {
@@ -51,7 +61,7 @@ const RestaurantSearchPage: React.FC = () => {
       return;
     }
     
-    console.log('fetchRestaurants:', { menuId, lat, lng });
+    setSelectedRestaurant(null);
 
     try {
       setLoading(true);
@@ -118,6 +128,22 @@ const RestaurantSearchPage: React.FC = () => {
     }
   };
 
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setManualLocation({ lat, lng });
+    setMapCenter({ lat, lng });
+    
+    if (mapInstance) {
+      mapInstance.panTo(new kakao.maps.LatLng(lat, lng));
+    }
+    
+    fetchRestaurants(lat, lng);
+    setIsSearchModalOpen(false);
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(prev => prev === 'MAP' ? 'LIST' : 'MAP');
+  };
+
   // 0. Missing Menu ID Guard
   if (!menuId) {
     return (
@@ -163,7 +189,7 @@ const RestaurantSearchPage: React.FC = () => {
           내 주변 맛집을 찾으려면<br />
           위치 정보 접근 권한을 허용해주세요.
         </p>
-        <div className="flex flex-col gap-3 w-full max-w-xs">
+        <div className="flex flex-col gap-3 w-full max-w-xs mx-auto items-center">
           <Button onClick={refreshGeo} size="lg" className="font-bold shadow-lg" fullWidth>
             <RotateCw className="w-5 h-5 mr-2" />
             다시 시도하기
@@ -194,27 +220,22 @@ const RestaurantSearchPage: React.FC = () => {
           
           <div className="flex-1 bg-white/90 backdrop-blur rounded-2xl shadow-xl px-5 py-3 flex items-center justify-between gap-2 border border-orange-100">
              <div className="flex items-center gap-2 min-w-0">
-               <span className="text-orange-600 font-black text-sm whitespace-nowrap">오늘의 메뉴</span>
-               <div className="w-1 h-1 bg-gray-300 rounded-full shrink-0" />
-               <span className="text-gray-800 font-bold text-sm truncate">주변 식당 찾기</span>
+               <span className="text-gray-800 font-bold text-sm truncate">{currentLocationName}</span>
              </div>
-             <Search className="w-4 h-4 text-gray-400" />
+             <button 
+               onClick={() => setIsSearchModalOpen(true)}
+               className="p-1 hover:bg-orange-50 rounded-lg transition-colors"
+             >
+               <Search className="w-4 h-4 text-orange-500" />
+             </button>
           </div>
 
-          <div className="bg-white/90 backdrop-blur rounded-2xl shadow-xl p-1 flex border border-gray-100">
-            <button 
-              onClick={() => setViewMode('MAP')}
-              className={`p-2.5 rounded-xl transition-all ${viewMode === 'MAP' ? 'bg-orange-500 text-white shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-            >
-              <MapIcon className="w-5 h-5" />
-            </button>
-            <button 
-              onClick={() => setViewMode('LIST')}
-              className={`p-2.5 rounded-xl transition-all ${viewMode === 'LIST' ? 'bg-orange-500 text-white shadow-inner' : 'text-gray-400 hover:text-gray-600'}`}
-            >
-              <List className="w-5 h-5" />
-            </button>
-          </div>
+          <button 
+            onClick={toggleViewMode}
+            className="bg-orange-500 backdrop-blur rounded-2xl shadow-xl p-3 border border-gray-100 text-gray-700 hover:bg-orange-700 hover:text-orange-600 transition-all active:scale-95"
+          >
+            {viewMode === 'MAP' ? <List className="w-6 h-6 text-white" /> : <MapIcon className="w-6 h-6 text-white" />}
+          </button>
         </div>
       </div>
 
@@ -294,6 +315,14 @@ const RestaurantSearchPage: React.FC = () => {
         <RestaurantDetailModal 
           restaurant={detailRestaurant}
           onClose={() => setDetailRestaurant(null)}
+        />
+      )}
+
+      {/* Location Search Modal */}
+      {isSearchModalOpen && (
+        <LocationSearchModal 
+          onClose={() => setIsSearchModalOpen(false)}
+          onSelect={handleLocationSelect}
         />
       )}
       

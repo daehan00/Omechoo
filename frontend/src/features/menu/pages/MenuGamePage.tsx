@@ -171,6 +171,7 @@ const MenuGamePage: React.FC = () => {
                loading={false}
                onRetry={handleRetry}
                onFindRestaurant={(id) => navigate(`/restaurant/search?menuId=${id}`)}
+               onHome={() => navigate('/')}
              />
           </div>
         ) : (

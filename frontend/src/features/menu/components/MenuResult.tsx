@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCcw, MapPin, Utensils, Flame, ThermometerSun, ThermometerSnowflake, SearchX, Leaf, Weight } from 'lucide-react';
+import { RotateCcw, MapPin, Utensils, Flame, ThermometerSun, ThermometerSnowflake, SearchX, Leaf, Weight, Home } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import type { Menu } from '../../../types/menu';
 
@@ -8,6 +8,7 @@ interface MenuResultProps {
   loading: boolean;
   onRetry: () => void;
   onFindRestaurant: (menuId: string) => void;
+  onHome: () => void;
 }
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -27,11 +28,23 @@ export const MenuResult: React.FC<MenuResultProps> = ({
   results, 
   loading, 
   onRetry, 
-  onFindRestaurant 
+  onFindRestaurant,
+  onHome 
 }) => {
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-full py-20 bg-white">
+      <div className="flex flex-col h-full bg-white">
+        {/* Header */}
+        <div className="py-2.5 px-4 flex items-center border-b border-gray-50 bg-white z-10">
+          <button 
+            onClick={onHome}
+            className="p-1.5 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <Home className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+        
+        <div className="flex-1 flex flex-col items-center justify-center py-20">
         <div className="relative mb-8">
           <div className="w-24 h-24 border-4 border-orange-100 border-t-orange-500 rounded-full animate-spin"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full p-2">
@@ -40,6 +53,7 @@ export const MenuResult: React.FC<MenuResultProps> = ({
         </div>
         <h2 className="text-xl font-extrabold text-gray-900 mb-2 animate-pulse">최적의 메뉴를 찾고 있어요</h2>
         <p className="text-gray-500 text-sm font-medium">당신의 취향을 분석중...</p>
+        </div>
       </div>
     );
   }
@@ -48,6 +62,16 @@ export const MenuResult: React.FC<MenuResultProps> = ({
   if (results.length === 0) {
     return (
       <div className="w-full h-full flex flex-col bg-white">
+        {/* Header */}
+        <div className="py-2.5 px-4 flex items-center border-b border-gray-50 bg-white z-10">
+          <button 
+            onClick={onHome}
+            className="p-1.5 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <Home className="w-5 h-5 text-gray-700" />
+          </button>
+        </div>
+        
         <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
           <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-6">
             <SearchX className="w-10 h-10 text-gray-300" />
@@ -87,7 +111,17 @@ export const MenuResult: React.FC<MenuResultProps> = ({
 
   return (
     <div className="w-full h-full flex flex-col bg-white relative">
-      {/* Header */}
+      {/* Navigation Header */}
+      <div className="py-2.5 px-4 flex items-center border-b border-gray-50 bg-white z-10">
+        <button 
+          onClick={onHome}
+          className="p-1.5 -ml-1 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <Home className="w-5 h-5 text-gray-700" />
+        </button>
+      </div>
+      
+      {/* Title Header */}
       <div className="text-center mb-1 pt-3 px-6">
         <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
           오늘의 추천! <span className="text-orange-500">✨</span>
@@ -194,7 +228,7 @@ export const MenuResult: React.FC<MenuResultProps> = ({
           className="bg-white/90 backdrop-blur border border-gray-200 text-gray-600 font-bold shadow-lg hover:bg-gray-50"
         >
           <RotateCcw className="w-4 h-4 mr-2" />
-          처음부터 다시하기
+          다시하기
         </Button>
       </div>
     </div>

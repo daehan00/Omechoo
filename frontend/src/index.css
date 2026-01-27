@@ -16,3 +16,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Fix Mobile Drag/Zoom Issues */
+.kakao-map-container {
+  touch-action: none; 
+}
