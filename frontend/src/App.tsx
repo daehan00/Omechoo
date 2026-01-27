@@ -5,6 +5,7 @@ import { Button } from './components/ui/Button';
 import MenuModePage from './features/menu/pages/MenuModePage';
 import MenuWizardPage from './features/menu/pages/MenuWizardPage';
 import MenuGamePage from './features/menu/pages/MenuGamePage';
+import RestaurantSearchPage from './features/restaurant/pages/RestaurantSearchPage';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -36,15 +37,15 @@ function HomePage() {
           메뉴 추천받기
         </Button>
         
-        <Button variant="secondary" fullWidth size="lg">
+        {/* <Button variant="secondary" fullWidth size="lg">
           <MapPin className="w-5 h-5 mr-2 text-green-600" />
           근처 식당 찾기
-        </Button>
+        </Button> */}
       </div>
 
       <div className="mt-auto pt-8 text-center">
         <p className="text-xs text-gray-300 font-light">
-          Designed by Omechoo Team
+          Designed by daehan00
         </p>
       </div>
     </div>
@@ -60,6 +61,7 @@ function App() {
         <Route path="/menu/recommend/wizard" element={<MenuWizardPage />} />
         <Route path="/menu/recommend/keyword" element={<div className="p-8 text-center">Keyword 모드 준비중...</div>} />
         <Route path="/menu/recommend/random" element={<MenuGamePage />} />
+        <Route path="/restaurant/search" element={<RestaurantSearchPage />} />
       </Routes>
     </Layout>
   );

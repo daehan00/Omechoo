@@ -35,7 +35,7 @@ export interface RestaurantDetail {
   rating: string;
   review_count: string;
   blog_review_count: string;
-  business_status: any[];
+  business_status: string[];
   menus: RestaurantMenu[];
 }
 

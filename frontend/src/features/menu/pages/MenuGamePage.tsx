@@ -104,7 +104,7 @@ const MenuGamePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Lever (Right Side) */}ㅇ
+      {/* Lever (Right Side) */}
       <div className="absolute right-[50%] translate-x-[140px] top-[280px]">
         <div className="relative">
           {/* Base */}

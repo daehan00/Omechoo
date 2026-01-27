@@ -392,7 +392,7 @@ const MenuWizardPage: React.FC = () => {
               results={results}
               loading={loading}
               onRetry={reset}
-              onFindRestaurant={(menuId) => console.log('Find restaurant:', menuId)}
+              onFindRestaurant={(menuId) => navigate(`/restaurant/search?menuId=${menuId}`)}
             />
           </div>
         )}

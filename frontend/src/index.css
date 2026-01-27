@@ -4,6 +4,13 @@
   --animate-bounce-slow: bounce 3s infinite;
 }
 
+/* 전체 높이 체인 설정 - 카카오맵 등 h-full 사용 컴포넌트를 위해 필수 */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   -webkit-font-smoothing: antialiased;
