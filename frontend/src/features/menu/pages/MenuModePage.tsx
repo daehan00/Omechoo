@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ClipboardList, Tag, Dices, ChevronRight, ArrowLeft } from 'lucide-react';
+import { ClipboardList, Sparkles, Dices, ChevronRight, ArrowLeft } from 'lucide-react';
 
 interface ModeCardProps {
   title: string;
@@ -59,12 +59,20 @@ const MenuModePage: React.FC = () => {
             onClick={() => navigate('/menu/recommend/wizard')}
           />
           
-          <ModeCard
+          {/* <ModeCard
             title="태그 선택형"
             description="기분 따라 키워드로 빠르게!"
             icon={<Tag className="w-7 h-7 text-blue-600" />}
             color="bg-blue-50"
             onClick={() => navigate('/menu/recommend/keyword')}
+          /> */}
+
+          <ModeCard
+          title="[준비중]AI 추천형"
+          description="취향과 날씨, 계절, 기분까지 고려해 추천해요"
+          icon={<Sparkles className="w-7 h-7 text-emerald-600" />}
+          color="bg-emerald-50"
+          onClick={() => alert("준비 중입니다!")}
           />
           
           <ModeCard
