@@ -69,13 +69,23 @@ class BasicRecommender(RecommendationStrategy):
                 if hasattr(menu_val, "value"):
                     menu_val = menu_val.value
                 
-                # IntEnum 등은 숫자로 비교되므로 그대로 둠
-                if menu_val != attr_value:
-                    return False
+                # attr_value가 리스트인 경우 OR 조건 (하나라도 일치하면 통과)
+                if isinstance(attr_value, list):
+                    if menu_val not in attr_value:
+                        return False
+                else:
+                    # 단일 값 비교
+                    if menu_val != attr_value:
+                        return False
             else:
                 # 필드에 없으면 tags에서 확인 (대소문자 무시 등 유연하게 처리)
-                # 요청이 "SOUP": True 로 오면 tags에 "SOUP"이 있어야 함
-                if attr_key.upper() not in menu.tags:
-                    return False
+                # attr_value가 리스트인 경우 하나라도 태그에 있으면 통과
+                if isinstance(attr_value, list):
+                    if not any(val.upper() in menu.tags for val in attr_value):
+                        return False
+                else:
+                    # 요청이 "SOUP": True 로 오면 tags에 "SOUP"이 있어야 함
+                    if attr_key.upper() not in menu.tags:
+                        return False
                 
         return True

@@ -57,10 +57,10 @@ class KakaoRestaurantScraper(RestaurantScraper):
         blog_count = self._extract_regex(r'블로그\s*([0-9,]+)', body_text, "0").replace(',', '')
         
         # 영업 상태 분리 로직
-        raw_status = self._extract_regex(r'(영업\s*(?:중|마감|종료)[^\n]*)', body_text, "")
+        raw_status = self._extract_regex(r'((?:영업\s*)?(?:전|중|마감|종료|브레이크타임|휴무일)[^\n]*)', body_text, "")
         status_list = []
         if raw_status:
-            split_match = re.match(r'(영업\s*(?:중|마감|종료))\s*(.*)', raw_status)
+            split_match = re.match(r'((?:영업\s*)?(?:전|중|마감|종료|브레이크타임|휴무일))\s*(.*)', raw_status)
             if split_match:
                 status_main = split_match.group(1).strip()
                 status_sub = split_match.group(2).strip()
