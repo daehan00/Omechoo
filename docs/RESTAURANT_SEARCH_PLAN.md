@@ -106,20 +106,34 @@ graph TD
 ## 6. 개발 로드맵
 
 ### Phase 1: 기반 구축
-*   [ ] 카카오맵 SDK 연동 및 지도 컴포넌트 (`KakaoMap`) 구현.
-*   [ ] 뷰 모드(Map/List) 상태 관리 및 토글 UI 구현.
-*   [ ] Geolocation 훅 구현 및 위치 권한 처리 로직.
+*   [x] 카카오맵 SDK 연동 및 지도 컴포넌트 (`KakaoMap`) 구현.
+*   [x] 뷰 모드(Map/List) 상태 관리 및 토글 UI 구현.
+*   [x] Geolocation 훅 구현 및 위치 권한 처리 로직.
 
 ### Phase 2: 검색 리스트/마커 구현
-*   [ ] `RestaurantList` 컴포넌트 구현 (더미 데이터 활용).
-*   [ ] 지도 마커 렌더링 및 클릭 이벤트 핸들링.
-*   [ ] `search` API 연동.
+*   [x] `RestaurantList` 컴포넌트 구현 (더미 데이터 활용).
+*   [x] 지도 마커 렌더링 및 클릭 이벤트 핸들링.
+*   [x] `search` API 연동.
 
 ### Phase 3: 상세 정보 및 인터랙션
-*   [ ] 하단 요약 오버레이 (`SummarySheet`) 구현.
-*   [ ] 식당 상세 모달 (`DetailModal`) 구현 및 `detail` API 연동.
-*   [ ] 로딩/에러 상태 처리 (스켈레톤 등).
+*   [x] 하단 요약 오버레이 (`SummarySheet`) 구현.
+*   [x] 식당 상세 모달 (`DetailModal`) 구현 및 `detail` API 연동.
+*   [x] 로딩/에러 상태 처리 (스켈레톤 등).
 
 ### Phase 4: 위치 설정 고도화
-*   [ ] 주소 검색/지역 선택 모달 구현.
-*   [ ] "이 지역에서 재검색" 기능 (지도 Drag & Drop 이벤트).
+*   [x] "이 지역에서 재검색" 기능 (지도 Drag & Drop 이벤트).
+*   [x] 현재 위치로 이동(PanTo) 기능.
+
+### Phase 5: 지역 검색 (Location Search) - *New*
+*   **목표:** 사용자가 직접 "강남역", "홍대" 등을 검색하여 지도를 이동시킬 수 있음.
+*   **구현 계획:**
+    1.  **UI:** `LocationSearchModal` 컴포넌트 구현.
+        *   상단 검색바 (Input + Search Icon).
+        *   검색 결과 리스트 (장소명, 주소).
+    2.  **Logic:** 카카오맵 `services.Places` 라이브러리 활용.
+        *   `ps.keywordSearch(keyword, callback)` 호출.
+        *   결과(`data`)에서 `x(lng)`, `y(lat)`, `place_name` 추출.
+    3.  **Interaction:**
+        *   헤더의 돋보기 아이콘 클릭 → 모달 오픈.
+        *   검색어 입력 후 엔터/클릭 → 리스트 갱신.
+        *   장소 클릭 → 모달 닫기 → 지도 중심 이동(`panTo`) → 식당 재검색(`fetchRestaurants`).

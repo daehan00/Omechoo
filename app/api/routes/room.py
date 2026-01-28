@@ -275,11 +275,11 @@ async def change_vote(
     current_user: TokenPayload = Depends(get_current_participant),
 ):
     """
-    투표 변경
+    투표 변경 또는 취소
     
     🔒 **인증 필요**: Authorization: Bearer <token>
     
-    - **new_candidate_id**: 새로 선택할 후보 ID
+    - **new_candidate_id**: 새로 선택할 후보 ID (null이면 투표 취소)
     """
     # 방 일치 검증
     require_room_match(current_user, room_id)
@@ -302,9 +302,12 @@ async def change_vote(
     except ParticipantNotFoundError:
         raise HTTPException(status_code=404, detail="Vote not found")
     
+    # 취소인지 변경인지에 따라 메시지 분기
+    message = "Vote cancelled successfully" if body.new_candidate_id is None else "Vote changed successfully"
+    
     return VoteResponse(
         success=True,
-        message="Vote changed successfully",
+        message=message,
         results=[_to_vote_result_response(r) for r in results],
     )
 

@@ -38,8 +38,8 @@ class CastVoteRequest(BaseModel):
 
 
 class ChangeVoteRequest(BaseModel):
-    """투표 변경 요청"""
-    new_candidate_id: str = Field(..., description="새로 선택한 후보 ID")
+    """투표 변경/취소 요청"""
+    new_candidate_id: str | None = Field(None, description="새로 선택한 후보 ID (null이면 투표 취소)")
 
 
 # CloseRoomRequest 삭제됨 - 토큰에서 방장 여부 확인

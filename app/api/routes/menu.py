@@ -21,7 +21,7 @@ async def all_menu(
     return MenuRecommendResponse.create(all_menu)
 
 @router.post("/recommend/basic", response_model=MenuRecommendResponse)
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")
 async def recommend_menu(
     request: Request,
     body: MenuRecommendRequest,

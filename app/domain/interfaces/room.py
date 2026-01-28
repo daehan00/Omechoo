@@ -97,6 +97,13 @@ class VoteRepository(ABC):
         ...
     
     @abstractmethod
+    def delete_vote(
+        self, room_id: str, participant_id: str
+    ) -> bool:
+        """투표 취소 (삭제)"""
+        ...
+    
+    @abstractmethod
     def get_results(self, room_id: str) -> list[VoteResult]:
         """투표 결과 집계"""
         ...

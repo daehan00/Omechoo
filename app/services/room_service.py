@@ -193,13 +193,24 @@ class RoomService:
         
         return self._vote_repo.get_results(room_id)
     
-    async def change_vote(self, room_id: str, participant_id: str, new_candidate_id: str) -> list[VoteResult]:
-        """투표 변경"""
+    async def change_vote(self, room_id: str, participant_id: str, new_candidate_id: str | None) -> list[VoteResult]:
+        """투표 변경 또는 취소
+        
+        Args:
+            new_candidate_id: 새 후보 ID. None이면 투표 취소.
+        """
         room = await self.get_room(room_id)
         
         # 투표 가능 상태 확인
         if not room.can_vote():
             raise RoomNotVotingError(room_id, room.status.value)
+        
+        # new_candidate_id가 None이면 투표 취소
+        if new_candidate_id is None:
+            deleted = self._vote_repo.delete_vote(room_id, participant_id)
+            if not deleted:
+                raise ParticipantNotFoundError(participant_id)
+            return self._vote_repo.get_results(room_id)
         
         # 후보 유효성 확인
         valid_candidate_ids = [c.id for c in room.candidates]

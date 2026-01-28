@@ -224,6 +224,20 @@ class SQLAlchemyVoteRepository(VoteRepository):
         self._db.refresh(model)
         return self._to_entity(model)
     
+    def delete_vote(
+        self, room_id: str, participant_id: str
+    ) -> bool:
+        """투표 취소 (삭제)"""
+        model = self._db.query(VoteModel).filter(
+            VoteModel.room_id == room_id,
+            VoteModel.participant_id == participant_id,
+        ).first()
+        if not model:
+            return False
+        self._db.delete(model)
+        self._db.commit()
+        return True
+    
     def get_results(self, room_id: str) -> list[VoteResult]:
         # 방 정보 조회 (후보 목록 필요)
         room_model = self._db.query(RoomModel).filter(
