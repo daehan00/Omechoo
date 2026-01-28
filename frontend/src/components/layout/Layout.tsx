@@ -1,7 +1,8 @@
 import React from 'react';
+import { Outlet } from 'react-router-dom';
 
 interface LayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
@@ -12,7 +13,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         overflow-hidden으로 전체 페이지 스크롤을 막고 내부에서 스크롤하게 함.
       */}
       <div className="w-full max-w-md bg-white h-full shadow-xl relative flex flex-col overflow-hidden">
-        {children}
+        {children || <Outlet />}
       </div>
     </div>
   );

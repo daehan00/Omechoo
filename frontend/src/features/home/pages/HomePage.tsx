@@ -9,7 +9,7 @@ const HomePage: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
       {/* 1. Hero Section */}
-      <div className="flex flex-col items-center justify-center min-h-[70vh] p-8 pb-0">
+      <div className="flex flex-col items-center justify-center min-h-[75vh] p-8 pb-0">
         <div className="bg-orange-100 p-6 rounded-full animate-bounce-slow mb-6">
           <Utensils className="w-14 h-14 text-orange-500" />
         </div>
@@ -44,6 +44,17 @@ const HomePage: React.FC = () => {
           >
             <MapPin className="w-5 h-5 mr-2 text-green-600" />
             주변 식당 찾기
+          </Button>
+
+          <Button 
+            variant="secondary" 
+            fullWidth 
+            size="lg"
+            className="text-lg h-14 rounded-2xl bg-purple-50 border-purple-100 text-purple-700 hover:bg-purple-100"
+            onClick={() => navigate('/rooms/create')}
+          >
+            <Users className="w-5 h-5 mr-2" />
+            같이 고르기
           </Button>
         </div>
       </div>
@@ -83,16 +94,18 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Feature 3: Group Voting (Future) */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
+          {/* Feature 3: Group Voting */}
+          <div 
+            className="bg-white p-5 rounded-2xl border border-purple-100 shadow-md flex gap-4 items-start cursor-pointer hover:shadow-lg transition-shadow"
+            // onClick={() => navigate('/rooms/create')}
+          >
             <div className="bg-purple-50 p-3 rounded-xl shrink-0">
               <Users className="w-6 h-6 text-purple-500" />
             </div>
             <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-1">타인과 함께 고르기</h3>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">같이 고르기</h3>
               <p className="text-sm text-gray-500 leading-snug">
-                링크 하나로 사람들을 초대해서 다같이 메뉴 투표를 할 수 있어요.
-                <span className="inline-block bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded ml-2 font-bold align-middle">준비중</span>
+                링크 하나로 팀원들을 초대해서 다같이 메뉴 투표를 할 수 있어요.
               </p>
             </div>
           </div>
