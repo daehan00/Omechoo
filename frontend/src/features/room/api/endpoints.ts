@@ -54,8 +54,8 @@ export const castVote = async (roomId: string, candidateId: string): Promise<Vot
   return response.data;
 };
 
-// 투표 변경
-export const changeVote = async (roomId: string, newCandidateId: string): Promise<VoteResponse> => {
+// 투표 변경 또는 취소 (null이면 취소)
+export const changeVote = async (roomId: string, newCandidateId: string | null): Promise<VoteResponse> => {
   const token = roomTokenUtils.get(roomId);
   const response = await roomClient.patch<VoteResponse>(
     `/rooms/${roomId}/vote`,

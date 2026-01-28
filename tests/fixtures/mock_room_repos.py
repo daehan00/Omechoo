@@ -116,6 +116,13 @@ class MockVoteRepository(VoteRepository):
                 return v
         return None
     
+    def delete_vote(self, room_id: str, participant_id: str) -> bool:
+        for vote_id, v in list(self._votes.items()):
+            if v.room_id == room_id and v.participant_id == participant_id:
+                del self._votes[vote_id]
+                return True
+        return False
+    
     def get_results(self, room_id: str) -> list[VoteResult]:
         room = self._room_repo.get_by_id(room_id)
         if not room:

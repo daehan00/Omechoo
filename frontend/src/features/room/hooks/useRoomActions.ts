@@ -53,7 +53,7 @@ export const useCastVote = (roomId: string) => {
 export const useChangeVote = (roomId: string) => {
   const queryClient = useQueryClient();
 
-  return useMutation<VoteResponse, Error, string>({
+  return useMutation<VoteResponse, Error, string | null>({
     mutationFn: (newCandidateId) => changeVote(roomId, newCandidateId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['room', roomId] });
