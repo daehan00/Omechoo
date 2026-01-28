@@ -13,6 +13,12 @@ from app.core.factories import (
 from app.services.menu_recommendation import MenuRecommendationService
 from app.services.restaurant_search import RestaurantSearchService
 from app.services.restaurant_detail import RestaurantDetailService
+from app.services.room_service import RoomService
+from app.infrastructure.repositories.sqlalchemy.room import (
+    SQLAlchemyRoomRepository,
+    SQLAlchemyParticipantRepository,
+    SQLAlchemyVoteRepository,
+)
 from app.db.session import get_db
 
 
@@ -36,3 +42,11 @@ def get_restaurant_detail_service(
 ) -> RestaurantDetailService:
     """식당 상세 정보 서비스 DI"""
     return create_restaurant_detail_service(db)
+
+
+def get_room_service(db: Session = Depends(get_db)) -> RoomService:
+    """투표 방 서비스 DI"""
+    room_repo = SQLAlchemyRoomRepository(db)
+    participant_repo = SQLAlchemyParticipantRepository(db)
+    vote_repo = SQLAlchemyVoteRepository(db)
+    return RoomService(room_repo, participant_repo, vote_repo)

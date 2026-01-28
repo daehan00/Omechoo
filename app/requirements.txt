@@ -9,3 +9,4 @@ respx
 pytest
 pytest-asyncio
 tenacity
+pyjwt

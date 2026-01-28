@@ -16,11 +16,12 @@ else:
 
 load_dotenv()
 
-from app.api.routes import menu, restaurant, health
+from app.api.routes import menu, restaurant, health, room
 from app.core.config import Settings
 from app.db.base import Base
 from app.db.session import engine
 from app.models import restaurant_detail  # 모델 등록을 위해 필수
+from app.models import room as room_model  # Room 모델 등록
 
 logging.basicConfig(level=logging.INFO)
 
@@ -52,6 +53,7 @@ app.add_middleware(
 app.include_router(menu.router)
 app.include_router(restaurant.router)
 app.include_router(health.router)
+app.include_router(room.router)
 
 if __name__ == "__main__":
     print("\n".join([f"{k}: {v}" for k, v in settings.model_dump().items()]))

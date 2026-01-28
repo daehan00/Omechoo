@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     # 데이터베이스
     DATABASE_URL: str = "sqlite:///./omechoo.db"
     
+    # JWT 인증
+    JWT_SECRET_KEY: str = "omechoo-room-secret-key-change-in-production"
+    
     # API Rate Limiting
     RATE_LIMIT_ENABLED: bool = True
     RATE_LIMIT_PER_MINUTE: int = 10
@@ -26,3 +29,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = True
+
+
+# 설정 인스턴스 (싱글톤)
+settings = Settings()
