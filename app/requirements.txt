@@ -4,9 +4,12 @@ sqlalchemy
 pydantic
 pydantic_settings
 httpx
-dotenv
 respx
 pytest
 pytest-asyncio
 tenacity
 pyjwt
+psycopg2-binary
+uvicorn
+playwright
+python-dotenv

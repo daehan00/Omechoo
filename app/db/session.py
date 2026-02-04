@@ -4,10 +4,14 @@ from app.core.config import Settings
 
 settings = Settings()
 
-# check_same_thread=False는 SQLite에서만 필요 (FastAPI 비동기 환경 대응)
+# SQLite일 경우에만 check_same_thread=False 옵션 사용
+connect_args = {}
+if settings.DATABASE_URL.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+
 engine = create_engine(
     settings.DATABASE_URL, 
-    connect_args={"check_same_thread": False}
+    connect_args=connect_args
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
