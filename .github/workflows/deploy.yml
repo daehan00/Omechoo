@@ -3,6 +3,8 @@ name: Deploy Frontend to GitHub Pages
 on:
   push:
     branches: ["main"]
+    paths:
+      - "frontend/**"
 
 # 권한 설정 (GitHub Pages 배포를 위해 필요)
 permissions:

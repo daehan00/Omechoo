@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
 # Python 의존성 설치
 COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN playwright install --with-deps chromium
 
 # 애플리케이션 코드 복사
 COPY main.py .
