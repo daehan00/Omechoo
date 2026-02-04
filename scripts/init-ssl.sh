@@ -28,10 +28,10 @@ mv ./certbot/conf/privkey.pem ./certbot/conf/live/$DOMAIN/
 mv ./certbot/conf/fullchain.pem ./certbot/conf/live/$DOMAIN/
 
 echo "Starting nginx..."
-docker-compose up -d nginx
+docker compose up -d nginx
 
 echo "Requesting Let's Encrypt certificate..."
-docker-compose run --rm certbot certonly --webroot \
+docker compose run --rm certbot certonly --webroot \
     --webroot-path=/var/www/certbot \
     --email $EMAIL \
     --agree-tos \
