@@ -58,6 +58,23 @@ server {
     # === 1LinkMe API Proxy ===
     # 1linkme-api 컨테이너가 없어도 Nginx가 죽지 않도록 변수 사용
     location /1linkme/api/ {
+        # CORS 헤더 설정
+        add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, PATCH, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+        add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range' always;
+        
+        # OPTIONS 요청 처리 (CORS preflight)
+        if ($request_method = 'OPTIONS') {
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, PATCH, OPTIONS' always;
+            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
+            add_header 'Access-Control-Max-Age' 1728000;
+            add_header 'Content-Type' 'text/plain; charset=utf-8';
+            add_header 'Content-Length' 0;
+            return 204;
+        }
+        
         # Docker Network 내의 컨테이너 이름 (먼저 설정)
         set $target_service "1linkme-api";
         
