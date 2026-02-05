@@ -7,7 +7,7 @@ import type { Restaurant } from '../../../types/restaurant';
 import { KakaoMap } from '../components/KakaoMap';
 import { RestaurantList } from '../components/RestaurantList';
 import { RestaurantSummary } from '../components/RestaurantSummary';
-import { RestaurantDetailModal } from '../components/RestaurantDetailModal';
+import { RestaurantMapPreviewModal } from '../components/RestaurantMapPreviewModal';
 import { LocationSearchModal } from '../components/LocationSearchModal';
 import { Button } from '../../../components/ui/Button';
 
@@ -312,7 +312,7 @@ const RestaurantSearchPage: React.FC = () => {
 
       {/* Detail Modal */}
       {detailRestaurant && (
-        <RestaurantDetailModal 
+        <RestaurantMapPreviewModal 
           restaurant={detailRestaurant}
           onClose={() => setDetailRestaurant(null)}
         />
