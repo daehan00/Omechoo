@@ -58,11 +58,12 @@ server {
     # === 1LinkMe API Proxy ===
     # 1linkme-api 컨테이너가 없어도 Nginx가 죽지 않도록 변수 사용
     location /1linkme/api/ {
+        # Docker Network 내의 컨테이너 이름 (먼저 설정)
+        set $target_service "1linkme-api";
+        
         # URL Rewriting: /1linkme/api/foo -> /foo
         rewrite ^/1linkme/api/(.*) /$1 break;
         
-        # Docker Network 내의 컨테이너 이름
-        set $target_service "1linkme-api";
         proxy_pass http://$target_service:8000;
 
         proxy_http_version 1.1;
