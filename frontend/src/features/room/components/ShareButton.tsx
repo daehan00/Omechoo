@@ -24,7 +24,6 @@ export const ShareButton: React.FC<ShareButtonProps> = ({ shareUrl, roomName }) 
       try {
         await navigator.share({
           title: roomName || '오메추 투표방',
-          text: '같이 투표해요!',
           url: shareUrl,
         });
       } catch (error) {

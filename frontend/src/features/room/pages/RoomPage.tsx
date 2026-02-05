@@ -163,7 +163,7 @@ const RoomPage: React.FC = () => {
   }
 
   const { room, participants, results } = data;
-  const shareUrl = `${window.location.origin}/rooms/${roomId}`;
+  const shareUrl = `${window.location.origin}${window.location.pathname}${window.location.hash}`;
   const totalVotes = results.reduce((sum, r) => sum + r.vote_count, 0);
 
   // 승자 계산: closeResult에서 가져오거나, results에서 직접 계산
