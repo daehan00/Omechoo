@@ -50,7 +50,7 @@ const HEAVINESS_LEVELS: { value: Heaviness; label: string; icon: string }[] = [
   { value: 3, label: '헤비하게', icon: '🍖' },
 ];
 
-const RECOMMENDATION_LIMIT = 10;
+const RECOMMENDATION_LIMIT = 4;
 
 // --- Component ---
 
@@ -406,7 +406,7 @@ const MenuWizardPage: React.FC = () => {
             {/* Secondary Action: Skip or Immediate Recommend */}
             <Button 
               variant="secondary" 
-              className="flex-1 border-gray-200 text-gray-500 font-bold bg-white/80 backdrop-blur-sm"
+              className="flex-2 border-gray-200 text-gray-500 font-bold bg-white/80 backdrop-blur-sm"
               onClick={handleRecommend}
             >
               <Play className="w-4 h-4 mr-1.5 fill-current" />
@@ -415,7 +415,7 @@ const MenuWizardPage: React.FC = () => {
 
             {/* Primary Action: Next */}
             <Button 
-              className="flex-[2] shadow-lg shadow-orange-200 font-bold" 
+              className="flex-3 shadow-lg shadow-orange-200 font-bold" 
               onClick={nextStep}
             >
               {step === 'details' ? '결과 보기' : '다음 단계'}

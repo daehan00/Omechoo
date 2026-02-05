@@ -62,6 +62,13 @@ export const RestaurantSummary: React.FC<RestaurantSummaryProps> = ({
              variant="secondary" 
              size="sm" 
              className="rounded-xl font-bold bg-gray-50 border-gray-100 text-gray-600"
+             onClick={() => {
+               if (restaurant.location) {
+                 const { latitude, longitude } = restaurant.location;
+                 const url = `https://map.kakao.com/link/to/${restaurant.name},${latitude},${longitude}`;
+                 window.open(url, '_blank', 'noopener,noreferrer');
+               }
+             }}
            >
              <CornerUpRight />
            </Button>

@@ -272,17 +272,17 @@ export const MenuResult: React.FC<MenuResultProps> = ({
               
               {/* Menu Content */}
               <div className="text-center z-10 flex-1 flex flex-col justify-center items-center py-2">
-                <div className="text-5xl mb-3 filter drop-shadow-sm transition-transform duration-300 group-hover:scale-110">🍽️</div>
+                <div className="text-5xl mb-2 filter drop-shadow-sm transition-transform duration-300 group-hover:scale-110">🍽️</div>
                 <h3 className={`font-black leading-tight break-keep ${
                   menu.name.length > 6 ? 'text-base' : 'text-lg'
-                } text-gray-900 mb-1`}>
+                } text-gray-900`}>
                   {menu.name}
                 </h3>
-                <p className="text-[10px] text-gray-400 line-clamp-1">{menu.description || '설명 없음'}</p>
+                {/* <p className="text-[10px] text-gray-400 line-clamp-1">{menu.description || '설명 없음'}</p> */}
               </div>
 
               {/* Attributes & Action */}
-              <div className="flex flex-col gap-2.5 z-10 w-full">
+              <div className="flex flex-col gap-2 z-10 w-full">
                 {/* Attribute Badges */}
                 <div className="flex justify-center gap-1 h-5">
                   {/* Spiciness */}
