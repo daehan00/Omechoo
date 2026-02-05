@@ -14,6 +14,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - shared-net
 
   backend:
     build:
@@ -32,6 +34,8 @@ services:
         condition: service_healthy
     volumes:
       - ./app:/app/app:ro
+    networks:
+      - shared-net
 
   nginx:
     image: nginx:alpine
@@ -48,6 +52,13 @@ services:
       - DOMAIN_NAME=${DOMAIN_NAME:-localhost}
     depends_on:
       - backend
+    networks:
+      - shared-net
 
 volumes:
   postgres_data:
+
+networks:
+  shared-net:
+    name: omechoo-shared-net
+    driver: bridge
