@@ -97,7 +97,7 @@ const RestaurantSearchPage: React.FC = () => {
   };
 
   const handleMenuChange = (id: string, name: string) => {
-    setSearchParams({ menuId: id, menuName: name });
+    setSearchParams({ menuId: id, menuName: name }, { state: location.state });
     setShowMenuSelector(false);
   };
 
