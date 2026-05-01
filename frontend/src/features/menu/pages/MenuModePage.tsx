@@ -66,6 +66,14 @@ const MenuModePage: React.FC = () => {
             color="bg-blue-50"
             onClick={() => navigate('/menu/recommend/keyword')}
           /> */}
+          
+          <ModeCard
+            title="완전 랜덤형"
+            description="운에 맡기고 결과만 확인해요"
+            icon={<Dices className="w-7 h-7 text-purple-600" />}
+            color="bg-purple-50"
+            onClick={() => navigate('/menu/recommend/random')}
+          />
 
           <ModeCard
           title="[준비중]AI 추천형"
@@ -73,14 +81,6 @@ const MenuModePage: React.FC = () => {
           icon={<Sparkles className="w-7 h-7 text-emerald-600" />}
           color="bg-emerald-50"
           onClick={() => alert("준비 중입니다!")}
-          />
-          
-          <ModeCard
-            title="랜덤 게임형"
-            description="운에 맡기고 결과만 확인해요"
-            icon={<Dices className="w-7 h-7 text-purple-600" />}
-            color="bg-purple-50"
-            onClick={() => navigate('/menu/recommend/random')}
           />
         </div>
 

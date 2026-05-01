@@ -207,7 +207,7 @@ const RestaurantSearchPage: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-gray-50 overflow-hidden relative">
       {/* Header Overlay */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 pointer-events-none">
+      <div className="absolute top-0 left-0 right-0 z-[100] p-4 pointer-events-none">
         <div className="flex flex-col gap-2 max-w-2xl mx-auto">
           <div className="flex items-center justify-between gap-2 pointer-events-auto">
             <button 

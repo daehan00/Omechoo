@@ -79,20 +79,6 @@ const HomePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Feature 1: Personalized (Future) */}
-          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
-            <div className="bg-blue-50 p-3 rounded-xl shrink-0">
-              <User className="w-6 h-6 text-blue-500" />
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900 text-lg mb-1">나보다 나를 더 잘 아는 추천</h3>
-              <p className="text-sm text-gray-500 leading-snug">
-                로그인하면 취향을 분석해서 딱 맞는 메뉴를 제안해드려요.
-                <span className="inline-block bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded ml-2 font-bold align-middle">준비중</span>
-              </p>
-            </div>
-          </div>
-
           {/* Feature 3: Group Voting */}
           <div 
             className="bg-white p-5 rounded-2xl border border-purple-100 shadow-md flex gap-4 items-start cursor-pointer hover:shadow-lg transition-shadow"
@@ -105,6 +91,20 @@ const HomePage: React.FC = () => {
               <h3 className="font-bold text-gray-900 text-lg mb-1">같이 고르기</h3>
               <p className="text-sm text-gray-500 leading-snug">
                 링크 하나로 팀원들을 초대해서 다같이 메뉴 투표를 할 수 있어요.
+              </p>
+            </div>
+          </div>
+
+          {/* Feature 1: Personalized (Future) */}
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex gap-4 items-start">
+            <div className="bg-blue-50 p-3 rounded-xl shrink-0">
+              <User className="w-6 h-6 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="font-bold text-gray-900 text-lg mb-1">나보다 나를 더 잘 아는 추천</h3>
+              <p className="text-sm text-gray-500 leading-snug">
+                로그인하면 취향을 분석해서 딱 맞는 메뉴를 제안해드려요.
+                <span className="inline-block bg-gray-100 text-gray-500 text-[10px] px-1.5 py-0.5 rounded ml-2 font-bold align-middle">준비중</span>
               </p>
             </div>
           </div>
