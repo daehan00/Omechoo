@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, MapPin, ChevronRight, Users, Check, X } from 'lucide-react';
+import { MapPin, Users, Check, X, ExternalLink } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { useCreateRoom } from '../../room/hooks/useRoomActions';
 import type { Restaurant } from '../../../types/restaurant';
@@ -9,6 +9,149 @@ interface RestaurantListProps {
   restaurants: Restaurant[];
   onSelect: (restaurant: Restaurant) => void;
 }
+
+/**
+ * 개별 식당 카드 컴포넌트
+ * Intersection Observer를 사용하여 화면에 보일 때만 iframe을 로드합니다.
+ */
+const RestaurantCard: React.FC<{
+  rest: Restaurant;
+  isSelected: boolean;
+  selectMode: boolean;
+  onSelect: (restaurant: Restaurant) => void;
+  toggleSelection: (id: string) => void;
+}> = ({ rest, isSelected, selectMode, onSelect, toggleSelection }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // 카드 바깥을 클릭하면 인터랙션 모드 해제
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cardRef.current && !cardRef.current.contains(event.target as Node)) {
+        setIsInteracting(false);
+      }
+    };
+
+    if (isInteracting) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isInteracting]);
+
+  const url = rest.urls?.[0];
+  const getKakaoPlaceId = (urlStr: string): string | null => {
+    const match = urlStr.match(/place\.map\.kakao\.com\/(\d+)/);
+    return match ? match[1] : null;
+  };
+  const kakaoPlaceId = url ? getKakaoPlaceId(url) : null;
+
+  return (
+    <div
+      ref={cardRef}
+      className={`
+        w-full bg-white border-2 rounded-3xl overflow-hidden shadow-sm transition-all flex flex-col text-left
+        ${selectMode && isSelected
+          ? 'border-purple-500 bg-purple-50 shadow-md shadow-purple-100'
+          : 'border-gray-100 hover:border-orange-200'
+        }
+      `}
+    >
+      {/* 상단 정보 영역: 이름과 거리만 표기 */}
+      <div 
+        className="p-5 flex justify-between items-center cursor-pointer active:bg-gray-50 transition-colors"
+        onClick={() => selectMode ? toggleSelection(rest.id) : onSelect(rest)}
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          {selectMode && (
+            <div
+              className={`
+                w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0
+                ${isSelected
+                  ? 'bg-purple-500 border-purple-500'
+                  : 'bg-white border-gray-300'
+                }
+              `}
+            >
+              {isSelected && <Check className="w-4 h-4 text-white" />}
+            </div>
+          )}
+          <h3 className="text-xl font-black text-gray-900 truncate tracking-tight">{rest.name}</h3>
+        </div>
+        
+        <div className="flex items-center text-gray-400 font-bold text-sm shrink-0">
+          <MapPin className="w-4 h-4 mr-1 text-orange-500" />
+          <span>{rest.distance ? `${(rest.distance / 1000).toFixed(1)}km` : ''}</span>
+        </div>
+      </div>
+
+      {/* 미리보기 영역: iframe 상시 노출 (지연 로딩 적용) */}
+      <div className="w-full aspect-[4/5] bg-gray-50 border-t border-gray-100 relative">
+        {kakaoPlaceId && isVisible ? (
+          <div className="w-full h-full relative">
+            <iframe
+              src={`https://place.map.kakao.com/m/${kakaoPlaceId}`}
+              className={`w-full h-full border-0 transition-opacity duration-300 ${!isInteracting ? 'opacity-90 pointer-events-none' : 'opacity-100'}`}
+              title={`${rest.name} 미리보기`}
+              loading="lazy"
+            />
+            
+            {/* 인터랙션 방지 오버레이 (선택 모드가 아닐 때만 작동) */}
+            {!selectMode && !isInteracting && (
+              <div 
+                className="absolute inset-0 bg-gray-900/5 flex items-center justify-center cursor-pointer hover:bg-gray-900/10 transition-colors z-20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsInteracting(true);
+                }}
+              >
+                <div className="bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 border border-gray-100 animate-in fade-in zoom-in duration-300">
+                  <span className="text-xs font-black text-gray-700">탭하여 상세보기</span>
+                </div>
+              </div>
+            )}
+            
+            {/* 선택 모드일 때의 투명 레이어 */}
+            {selectMode && (
+              <div 
+                className="absolute inset-0 z-30 cursor-pointer" 
+                onClick={() => toggleSelection(rest.id)}
+              />
+            )}
+          </div>
+        ) : !kakaoPlaceId ? (
+          <div className="w-full h-full flex flex-col items-center justify-center text-gray-400 p-6 text-center">
+            <ExternalLink className="w-8 h-8 mb-2 opacity-20" />
+            <p className="text-xs font-medium">미리보기를 지원하지 않는 식당입니다.</p>
+          </div>
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-gray-300 gap-3">
+            <div className="w-10 h-10 border-4 border-gray-100 border-t-orange-400 rounded-full animate-spin" />
+            <p className="text-xs font-bold">상세 정보 불러오는 중...</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, onSelect }) => {
   const navigate = useNavigate();
@@ -98,71 +241,17 @@ export const RestaurantList: React.FC<RestaurantListProps> = ({ restaurants, onS
 
   return (
     <div className="relative pb-24">
-      <div className="space-y-4">
-        {restaurants.map((rest) => {
-          const isSelected = selectedRestaurants.has(rest.id);
-
-          return (
-            <button
-              key={rest.id}
-              onClick={() => selectMode ? toggleSelection(rest.id) : onSelect(rest)}
-              className={`
-                w-full bg-white border-2 rounded-3xl p-5 shadow-sm transition-all flex gap-5 text-left active:scale-[0.98]
-                ${selectMode && isSelected
-                  ? 'border-purple-500 bg-purple-50 shadow-md shadow-purple-100'
-                  : 'border-gray-100 hover:shadow-md hover:border-orange-200'
-                }
-              `}
-            >
-              {/* 선택 모드 체크박스 */}
-              {selectMode && (
-                <div
-                  className={`
-                    absolute -top-1 -right-1 w-6 h-6 rounded-full border-2 flex items-center justify-center z-10
-                    ${isSelected
-                      ? 'bg-purple-500 border-purple-500'
-                      : 'bg-white border-gray-300'
-                    }
-                  `}
-                  style={{ position: 'relative', top: 0, right: 0, marginRight: -8, marginTop: -8 }}
-                >
-                  {isSelected && <Check className="w-4 h-4 text-white" />}
-                </div>
-              )}
-
-              {/* Thumbnail Placeholder */}
-              <div className="w-24 h-24 bg-gray-50 rounded-2xl flex items-center justify-center text-3xl shrink-0 border border-gray-50">
-                {rest.category.includes('한식') ? '🍚' : rest.category.includes('일식') ? '🍣' : rest.category.includes('중식') ? '🥢' : '🍽️'}
-              </div>
-
-              <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                <div>
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-black text-gray-900 truncate tracking-tight">{rest.name}</h3>
-                  </div>
-                  <p className="text-xs text-gray-500 font-medium mt-0.5">{rest.category}</p>
-                </div>
-
-                <div className="flex items-center gap-4 mt-auto">
-                  <div className="flex items-center text-orange-500 font-bold text-sm">
-                    <Star className="w-4 h-4 fill-orange-500 mr-1" />
-                    <span>4.5</span>
-                  </div>
-                  <div className="flex items-center text-gray-400 font-medium text-sm">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <span>{rest.distance ? `${(rest.distance / 1000).toFixed(1)}km` : ''}</span>
-                  </div>
-
-                  {!selectMode && (
-                    <div className="ml-auto">
-                      <ChevronRight className="w-5 h-5 text-gray-300" />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </button>
-          );
-        })}
+      <div className="space-y-8">
+        {restaurants.map((rest) => (
+          <RestaurantCard
+            key={rest.id}
+            rest={rest}
+            isSelected={selectedRestaurants.has(rest.id)}
+            selectMode={selectMode}
+            onSelect={onSelect}
+            toggleSelection={toggleSelection}
+          />
+        ))}
       </div>
 
       {/* Floating Action Button / 하단 버튼 영역 */}

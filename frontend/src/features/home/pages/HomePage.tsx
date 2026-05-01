@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Utensils, MapPin, Search, User, Sparkles, Users } from 'lucide-react';
+import { Utensils, Search, User, Sparkles, Users, TestTube } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
+import { RestaurantMapPreviewModal } from '../../restaurant/components/RestaurantMapPreviewModal';
+import type { Restaurant } from '../../../types/restaurant';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const [showTestModal, setShowTestModal] = useState(false);
+
+  // 테스트용 식당 데이터
+  const testRestaurant: Restaurant = {
+    id: '2067124772',
+    name: '테스트 식당',
+    category: '한식',
+    location: {
+      latitude: 33.450701,
+      longitude: 126.570667,
+      address: '제주특별자치도 제주시 첨단로 242',
+    },
+    urls: ['https://place.map.kakao.com/2067124772'],
+    distance: 100,
+  };
 
   return (
     <div className="flex flex-col h-full bg-white overflow-y-auto">
@@ -35,7 +52,7 @@ const HomePage: React.FC = () => {
             메뉴 추천받기
           </Button>
           
-          <Button 
+          {/* <Button 
             variant="secondary" 
             fullWidth 
             size="lg"
@@ -44,7 +61,7 @@ const HomePage: React.FC = () => {
           >
             <MapPin className="w-5 h-5 mr-2 text-green-600" />
             주변 식당 찾기
-          </Button>
+          </Button> */}
 
           <Button 
             variant="secondary" 
@@ -55,6 +72,18 @@ const HomePage: React.FC = () => {
           >
             <Users className="w-5 h-5 mr-2" />
             같이 고르기
+          </Button>
+
+          {/* Test Button */}
+          <Button 
+            variant="outline" 
+            fullWidth 
+            size="lg"
+            className="text-lg h-14 rounded-2xl border-dashed border-gray-300 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+            onClick={() => setShowTestModal(true)}
+          >
+            <TestTube className="w-5 h-5 mr-2" />
+            지도 미리보기 테스트
           </Button>
         </div>
       </div>
@@ -118,6 +147,14 @@ const HomePage: React.FC = () => {
           </p>
         </div>
       </div>
+      
+      {/* Test Modal */}
+      {showTestModal && (
+        <RestaurantMapPreviewModal 
+          restaurant={testRestaurant} 
+          onClose={() => setShowTestModal(false)} 
+        />
+      )}
     </div>
   );
 };

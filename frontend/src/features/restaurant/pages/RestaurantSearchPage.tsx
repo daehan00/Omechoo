@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Map as MapIcon, List, Home, Navigation, MapPin, Search, AlertCircle, RotateCw, Map as MapIconGeneric, RotateCcw, Utensils } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import { Map as MapIcon, List, Home, Navigation, MapPin, Search, AlertCircle, RotateCcw, Utensils, Sparkles, ChevronDown, Check } from 'lucide-react';
 import { useGeolocation } from '../../../hooks/useGeolocation';
 import { restaurantApi } from '../../../api/restaurant';
 import type { Restaurant } from '../../../types/restaurant';
+import type { Menu } from '../../../types/menu';
 import { KakaoMap } from '../components/KakaoMap';
 import { RestaurantList } from '../components/RestaurantList';
 import { RestaurantSummary } from '../components/RestaurantSummary';
@@ -14,15 +15,30 @@ import { Button } from '../../../components/ui/Button';
 type ViewMode = 'MAP' | 'LIST';
 
 const RestaurantSearchPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // URL에서 menuId 가져오기
   const menuId = searchParams.get('menuId');
+  // State에서 추천 목록 가져오기
+  const recommendations: Menu[] = location.state?.recommendations || [];
+  
+  // 현재 선택된 메뉴 정보
+  const currentMenu = useMemo(() => {
+    if (recommendations.length > 0) {
+      return recommendations.find(m => m.id === menuId) || recommendations[0];
+    }
+    return null;
+  }, [menuId, recommendations]);
+
+  const menuName = currentMenu?.name || location.state?.menuName || searchParams.get('menuName');
   
   const { latitude: myLat, longitude: myLng, loading: geoLoading, error: geoError, refresh: refreshGeo } = useGeolocation();
   const [manualLocation, setManualLocation] = useState<{lat: number, lng: number} | null>(null);
-  const currentLocationName = "주변 맛집 탐색";
+  // const currentLocationName = menuName ? `${menuName} 맛집 탐색` : "주변 맛집 탐색";
   
-  const [viewMode, setViewMode] = useState<ViewMode>('MAP');
+  const [viewMode, setViewMode] = useState<ViewMode>('LIST');
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,6 +47,7 @@ const RestaurantSearchPage: React.FC = () => {
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
   const [showReSearch, setShowReSearch] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const [showMenuSelector, setShowMenuSelector] = useState(false);
 
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [detailRestaurant, setDetailRestaurant] = useState<Restaurant | null>(null);
@@ -56,10 +73,7 @@ const RestaurantSearchPage: React.FC = () => {
   }, [activeLat, activeLng, menuId]);
 
   const fetchRestaurants = async (lat: number, lng: number) => {
-    if (!menuId) {
-      console.warn('fetchRestaurants: menuId is missing');
-      return;
-    }
+    if (!menuId) return;
     
     setSelectedRestaurant(null);
 
@@ -80,6 +94,11 @@ const RestaurantSearchPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMenuChange = (id: string, name: string) => {
+    setSearchParams({ menuId: id, menuName: name });
+    setShowMenuSelector(false);
   };
 
   const handleMarkerClick = (restaurant: Restaurant) => {
@@ -107,7 +126,6 @@ const RestaurantSearchPage: React.FC = () => {
   };
 
   const handleManualLocation = () => {
-    // Default to Seoul City Hall if GPS fails
     setManualLocation({ lat: 37.5665, lng: 126.9780 });
   };
 
@@ -131,11 +149,7 @@ const RestaurantSearchPage: React.FC = () => {
   const handleLocationSelect = (lat: number, lng: number) => {
     setManualLocation({ lat, lng });
     setMapCenter({ lat, lng });
-    
-    if (mapInstance) {
-      mapInstance.panTo(new kakao.maps.LatLng(lat, lng));
-    }
-    
+    if (mapInstance) mapInstance.panTo(new kakao.maps.LatLng(lat, lng));
     fetchRestaurants(lat, lng);
     setIsSearchModalOpen(false);
   };
@@ -144,7 +158,6 @@ const RestaurantSearchPage: React.FC = () => {
     setViewMode(prev => prev === 'MAP' ? 'LIST' : 'MAP');
   };
 
-  // 0. Missing Menu ID Guard
   if (!menuId) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-white p-8 text-center">
@@ -152,10 +165,7 @@ const RestaurantSearchPage: React.FC = () => {
           <Utensils className="w-12 h-12 text-orange-500" />
         </div>
         <h2 className="text-xl font-black text-gray-900 mb-2">메뉴 정보가 없어요</h2>
-        <p className="text-gray-500 mb-8">
-          어떤 메뉴를 드시고 싶으신가요?<br />
-          먼저 메뉴를 선택해주세요.
-        </p>
+        <p className="text-gray-500 mb-8">먼저 메뉴를 선택해주세요.</p>
         <Button onClick={() => navigate('/menu/mode')} size="lg" className="font-bold shadow-lg">
           메뉴 고르러 가기
         </Button>
@@ -163,7 +173,6 @@ const RestaurantSearchPage: React.FC = () => {
     );
   }
 
-  // 1. Geolocation Loading
   if (geoLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-white">
@@ -172,12 +181,10 @@ const RestaurantSearchPage: React.FC = () => {
            <MapPin className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-orange-500" />
         </div>
         <p className="text-gray-900 font-black text-lg">내 위치를 확인하고 있어요</p>
-        <p className="text-gray-400 text-sm mt-1">잠시만 기다려주세요</p>
       </div>
     );
   }
 
-  // 2. Geolocation Error (Permission Denied, etc.) AND No Manual Location
   if (geoError && !activeLat) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-white p-8 text-center">
@@ -185,23 +192,14 @@ const RestaurantSearchPage: React.FC = () => {
           <AlertCircle className="w-12 h-12 text-red-500" />
         </div>
         <h2 className="text-xl font-black text-gray-900 mb-2">위치 권한이 필요해요</h2>
-        <p className="text-gray-500 mb-8 leading-relaxed">
-          내 주변 맛집을 찾으려면<br />
-          위치 정보 접근 권한을 허용해주세요.
-        </p>
-        <div className="flex flex-col gap-3 w-full max-w-xs mx-auto items-center">
+        <div className="flex flex-col gap-3 w-full max-w-xs mx-auto items-center mt-8">
           <Button onClick={refreshGeo} size="lg" className="font-bold shadow-lg" fullWidth>
-            <RotateCw className="w-5 h-5 mr-2" />
             다시 시도하기
           </Button>
-          <Button onClick={handleManualLocation} variant="secondary" size="lg" className="font-bold border-gray-200" fullWidth>
-            <MapIconGeneric className="w-5 h-5 mr-2 text-gray-500" />
+          <Button onClick={handleManualLocation} variant="secondary" size="lg" className="font-bold border-gray-100" fullWidth>
             지도에서 직접 찾기
           </Button>
         </div>
-        <p className="text-xs text-gray-400 mt-6">
-          * '다시 시도'가 안 된다면 브라우저 설정에서 권한을 허용하거나, '지도에서 직접 찾기'를 이용해주세요.
-        </p>
       </div>
     );
   }
@@ -210,36 +208,68 @@ const RestaurantSearchPage: React.FC = () => {
     <div className="flex flex-col h-full bg-gray-50 overflow-hidden relative">
       {/* Header Overlay */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 pointer-events-none">
-        <div className="flex items-center justify-between gap-2 max-w-2xl mx-auto pointer-events-auto">
-          <button 
-            onClick={() => navigate("/")}
-            className="p-3 bg-white rounded-2xl shadow-xl hover:bg-gray-50 active:scale-95 transition-all border border-gray-100"
-          >
-            <Home className="w-6 h-6 text-gray-700" />
-          </button>
-          
-          <div className="flex-1 bg-white/90 backdrop-blur rounded-2xl shadow-xl px-5 py-3 flex items-center justify-between gap-2 border border-orange-100">
-             <div className="flex items-center gap-2 min-w-0">
-               <span className="text-gray-800 font-bold text-sm truncate">{currentLocationName}</span>
-             </div>
-             <button 
-               onClick={() => setIsSearchModalOpen(true)}
-               className="p-1 hover:bg-orange-50 rounded-lg transition-colors"
-             >
-               <Search className="w-4 h-4 text-orange-500" />
-             </button>
-          </div>
+        <div className="flex flex-col gap-2 max-w-2xl mx-auto">
+          <div className="flex items-center justify-between gap-2 pointer-events-auto">
+            <button 
+              onClick={() => navigate("/")}
+              className="p-3 bg-white rounded-2xl shadow-xl hover:bg-gray-50 active:scale-95 transition-all border border-gray-100"
+            >
+              <Home className="w-6 h-6 text-gray-700" />
+            </button>
+            
+            <div className="flex-1 bg-white/90 backdrop-blur rounded-2xl shadow-xl px-4 py-2.5 flex items-center justify-between gap-2 border border-orange-100 relative">
+               <div 
+                className="flex items-center gap-1.5 min-w-0 cursor-pointer"
+                onClick={() => recommendations.length > 0 && setShowMenuSelector(!showMenuSelector)}
+               >
+                 {menuName && <Sparkles className="w-4 h-4 text-orange-500 shrink-0" />}
+                 <div className="flex flex-col min-w-0">
+                    <span className="text-[10px] text-gray-400 font-bold leading-none mb-0.5">추천 메뉴 맛집</span>
+                    <div className="flex items-center gap-1">
+                      <span className="text-gray-900 font-black text-sm truncate">{menuName}</span>
+                      {recommendations.length > 0 && <ChevronDown className={`w-3 v-3 text-gray-400 transition-transform ${showMenuSelector ? 'rotate-180' : ''}`} />}
+                    </div>
+                 </div>
+               </div>
+               <button 
+                 onClick={() => setIsSearchModalOpen(true)}
+                 className="p-2 hover:bg-orange-50 rounded-xl transition-colors shrink-0"
+               >
+                 <Search className="w-4 h-4 text-orange-500" />
+               </button>
 
-          <button 
-            onClick={toggleViewMode}
-            className="bg-orange-500 backdrop-blur rounded-2xl shadow-xl p-3 border border-gray-100 text-gray-700 hover:bg-orange-700 hover:text-orange-600 transition-all active:scale-95"
-          >
-            {viewMode === 'MAP' ? <List className="w-6 h-6 text-white" /> : <MapIcon className="w-6 h-6 text-white" />}
-          </button>
+               {/* 메뉴 선택 드롭다운 */}
+               {showMenuSelector && recommendations.length > 0 && (
+                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="p-2 grid grid-cols-1 gap-1">
+                      {recommendations.map((menu) => (
+                        <button
+                          key={menu.id}
+                          onClick={() => handleMenuChange(menu.id, menu.name)}
+                          className={`flex items-center justify-between p-3 rounded-xl transition-colors ${
+                            menu.id === menuId ? 'bg-orange-50 text-orange-600' : 'hover:bg-gray-50 text-gray-700'
+                          }`}
+                        >
+                          <span className="font-bold text-sm">{menu.name}</span>
+                          {menu.id === menuId && <Check className="w-4 h-4" />}
+                        </button>
+                      ))}
+                    </div>
+                 </div>
+               )}
+            </div>
+
+            <button 
+              onClick={toggleViewMode}
+              className="bg-orange-500 rounded-2xl shadow-xl p-3 border border-orange-400 text-white hover:bg-orange-600 transition-all active:scale-95"
+            >
+              {viewMode === 'MAP' ? <List className="w-6 h-6" /> : <MapIcon className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Re-Search Button (Floating below header) */}
+      {/* Re-Search Button */}
       {showReSearch && viewMode === 'MAP' && (
         <div className="absolute top-24 left-0 right-0 z-20 flex justify-center animate-in slide-in-from-top-5 fade-in pointer-events-none">
           <button 
@@ -264,7 +294,6 @@ const RestaurantSearchPage: React.FC = () => {
                onMapLoad={handleMapLoad}
                onDragEnd={handleMapDragEnd}
              />
-             
              {selectedRestaurant && (
                <RestaurantSummary 
                  restaurant={selectedRestaurant}

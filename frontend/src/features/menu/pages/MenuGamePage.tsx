@@ -51,7 +51,18 @@ const MenuGamePage: React.FC = () => {
   };
 
   const handleCapsuleClick = () => {
-    setGameState('REVEALED');
+    if (selectedMenus.length > 0) {
+      const bestMenu = selectedMenus[0];
+      // 결과 화면을 보여주는 대신 바로 식당 검색으로 이동 (통합)
+      navigate(`/restaurant/search?menuId=${bestMenu.id}&menuName=${encodeURIComponent(bestMenu.name)}`, {
+        state: { 
+          menuName: bestMenu.name,
+          recommendations: selectedMenus 
+        }
+      });
+    } else {
+      setGameState('REVEALED');
+    }
   };
 
   const handleRetry = () => {

@@ -103,8 +103,18 @@ const MenuWizardPage: React.FC = () => {
         limit: RECOMMENDATION_LIMIT,
       });
       
-      if (response.success) {
-        setResults(response.data);
+      if (response.success && response.data.length > 0) {
+        const bestMenu = response.data[0];
+        // 결과 화면을 보여주는 대신 바로 식당 검색으로 이동 (통합)
+        navigate(`/restaurant/search?menuId=${bestMenu.id}&menuName=${encodeURIComponent(bestMenu.name)}`, {
+          state: { 
+            menuName: bestMenu.name,
+            recommendations: response.data 
+          }
+        });
+      } else if (response.success) {
+        setResults([]);
+        setStep('result');
       }
     } catch (error) {
       console.error('Failed to get recommendation', error);
